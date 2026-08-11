@@ -1,0 +1,209 @@
+<% layout('partials/cashierBoilerPlate') %>
+
+
+    <div class="text-center">
+        <h5 class=""> Inventory</h5>
+       <a href="/inventory/add"><button type="button" class="btn btn-danger" >+ Add New Inventory Item</button></a> 
+    </div>
+
+    <table class="table mt-4">
+        <thead>
+         <tr>
+
+                <th scope="col">Item</th>
+                <th scope="col">Current Portions</th>
+                <th scope="col">Total Boxes</th>
+                <th scope="col">Min Boxes</th>
+                <th scope="col">Purchase Restock (Portions)</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <% for (let i=0; i < food.length; i++) { %>
+                <tr data-index="<%= i %>">
+                    <!-- Item and Edit Column -->
+                    <td scope="row">
+                        <a href="/inventory/edit/<%= food[i].stock_id %>" class="btn btn-danger">View & Edit</a>
+            
+                        <span id="stock-name" style="vertical-align: middle;">
+                            <%= food[i].stock_name %>
+                        </span>
+                    </td>
+
+                    <!-- Current Portions Column -->
+                    <td id="current-portions" style="vertical-align: middle;">
+                        <%= food[i].total_portions %>
+                    </td>
+
+                    <!-- Total Boxes Column -->
+                    <td id="total-boxes" style="vertical-align: middle;">
+                        <% if (food[i].boxes < food[i].minimum_boxes) { %>
+                            <%= food[i].boxes %> ⚠︎ Low in Stock!
+                                <% } else { %>
+                                    <%= food[i].boxes %>
+                                        <% } %>
+                    </td>
+
+                    <!-- Minimum Boxes Column -->
+                    <td id="min-boxes" style="vertical-align: middle;">
+                        <%= food[i].minimum_boxes %>
+                    </td>
+
+                    <!-- Purchase Restock Column -->
+                    <td>
+                        <button type="button" class="btn btn-outline-danger"
+                            onclick="purchaseStock(25, <%= food[i].stock_id %>, this.closest('tr').dataset.index)">+25</button>
+                        <button type="button" class="btn btn-outline-danger"
+                            onclick="purchaseStock(50, <%= food[i].stock_id %>, this.closest('tr').dataset.index)">+50</button>
+                        <button type="button" class="btn btn-outline-danger"
+                            onclick="purchaseStock(100, <%= food[i].stock_id %>, this.closest('tr').dataset.index)">+100</button>
+                    </td>
+                </tr>
+                <% } %>
+
+        </tbody>
+    </table>
+
+    <script>
+    /**
+    * @file        Displays inventory with portions and boxes and allow managers to order more stock
+    */
+        let food = <%- JSON.stringify(food) %>;
+        
+        function renderTable() {
+            const inventoryDisplay = document.querySelector('tbody');
+            inventoryDisplay.innerHTML = "";
+
+            food.forEach((item, index) => {
+                let lowStockWarning = item.boxes < item.minimum_boxes ? `${item.boxes} ⚠︎ Low in Stock!` : item.boxes;
+                inventoryDisplay.insertAdjacentHTML("beforeend", `
+                    <tr data-index="${index}" data-stock-id="${item.stock_id}">
+                        <td scope="row">
+                           <a href="/inventory/edit/${item.stock_id}" class="btn btn-danger">View & Edit</a>
+                            <span class="stock-name" style="vertical-align: middle;">${item.stock_name}</span>
+                        </td>
+                        <td id="current-portions" style="vertical-align: middle;">
+                            ${item.total_portions}
+                        <td class="total-boxes" style="vertical-align: middle;">
+                            ${lowStockWarning}
+                        </td>
+                        <td class="min-boxes" style="vertical-align: middle;">
+                            ${item.minimum_boxes}
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-outline-danger" onclick="purchaseStock(25, ${item.stock_id}, ${index})">+25</button>
+                            <button type="button" class="btn btn-outline-danger" onclick="purchaseStock(50, ${item.stock_id}, ${index})">+50</button>
+                            <button type="button" class="btn btn-outline-danger" onclick="purchaseStock(100, ${item.stock_id}, ${index})">+100</button>
+                        </td>
+                    </tr>
+                `);
+            });
+        }
+        function fetchInventory() {
+            fetch('/inventory')
+                .then(response => response.json())
+                .then(updatedFood => {
+                    food = updatedFood;
+                })
+                .catch(error => {
+                    console.error("Failed to fetch inventory:", error);
+                });
+        }
+
+        function addNewInventory() {
+            let newName = prompt("Enter stock name:");
+            let newPortions = parseInt(prompt("Enter number of portions in stock:"), 10);
+            let newMin = parseInt(prompt("Enter minimum required boxes:"), 10);
+
+            if (!newName || isNaN(newPortions) || isNaN(newMin)) {
+                alert("Invalid input. Please try again.");
+                return;
+            }
+
+            // Find the largest stock_id in the current food array
+            let maxStockId = food.length > 0 ? Math.max(...food.map(item => item.stock_id)) : 0;
+            let newStockId = maxStockId + 1;
+
+            // Create the new item locally
+            let newItem = {
+                stock_id: newStockId,
+                stock_name: newName,
+                boxes: newPortions / 20, // Assuming 20 portions per box
+                total_portions: newPortions,
+                minimum_boxes: newMin
+            };
+
+            // Add the new item to the food array
+            food.push(newItem);
+
+            // Add the new item to the database via API and update UI
+            fetch('/inventory/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(newItem)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Failed to add new inventory item.");
+                    }
+                    return response.json();
+                })
+                .then(() => { fetchInventory(); })  // Refresh entire inventory
+                .then(() => { renderTable(); })
+            location.reload();
+        }
+
+        function editItem(stockId) {
+            // let newName = prompt("Enter new stock name:", stockName);
+            // let newPortions = parseInt(prompt("Enter new number of portions in stock:", totalBoxes), 10);
+            // let newMinBoxes = parseInt(prompt("Enter new minimum amount of boxes:", minBoxes), 10);
+
+            // if (!newName || isNaN(newPortions) || isNaN(newMinBoxes)) {
+            //     alert("Invalid input. Please try again.");
+            //     return;
+            // }
+
+            // food[rowIndex] = {
+            //     stock_id: stockId,
+            //     stock_name: newName || stockName,
+            //     boxes: newPortions / 20,
+            //     total_portions: newPortions,
+            //     minimum_boxes: newMinBoxes
+            // };
+
+            fetch(`/inventory/edit/${stockId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify()
+            })
+                .then(() => fetchInventory())  // Refresh entire inventory
+                .then(() => renderTable())
+                .catch(error => console.error("Failed to update inventory:", error));
+        }
+
+        function purchaseStock(portionsToAdd, stockId, rowIndex) {
+            /* TODO: MAKE SURE BOXES IS UPDATED TOO, ALSO MAKE SURE IT SAVES UPON RELOAD -- CURRENTLY IT JUST UPDATES ON FRONT-END */
+            // Update the local data
+            food[rowIndex].total_portions += portionsToAdd;
+            food[rowIndex].boxes = Math.ceil(food[rowIndex].total_portions / 20);
+
+            // Send the updated data to the server
+            fetch(`/inventory/purchase/${stockId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ total_portions: food[rowIndex].total_portions })
+            })
+                .then(() => fetchInventory())  // Fetch updated data from server to refresh UI
+                .then(() => renderTable())
+                .catch(error => console.error("Failed to update stock:", error));
+        }
+
+        // Initial render
+        renderTable();
+    </script>

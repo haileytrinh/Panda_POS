@@ -1,0 +1,97 @@
+<% layout('partials/cashierBoilerPlate') %>
+
+    <h4 class="text-center mb-4"> Manage Orders
+    </h4>
+
+
+    <form action="/orders" method="GET">
+        <label for="order_date">Select Date:</label>
+        <input type="date" id="order_date" name="order_date" value="<%= selectedDate || '' %>" required>
+        <button type="submit" class="btn btn-danger">Filter Orders</button>
+    </form>
+
+    <h4>Orders on <%= selectedDate ? selectedDate : 'All Dates' %>:</h4>
+
+
+
+    <div class="d-flex">
+
+        <!-- Order ID Column -->
+        <div class="d-flex flex-column flex-fill">
+            <h6>Order ID</h6>
+            <% for (let i=0; i < orders.length; i++) { %>
+                <li class="order-item">
+                    <span class="employee-name">
+                        <%= orders[i].order_id %>
+                    </span>
+                </li>
+                <% } %>
+        </div>
+
+        <!-- Order Time Column -->
+        <div class="d-flex flex-column flex-fill ms-3">
+            <h6>Order Time</h6>
+            <% for (let i=0; i < orders.length; i++) { %>
+                <li class="order-item">
+                    <span class="employee-name">
+                        <%= orders[i].order_time %>
+                    </span>
+                </li>
+                <% } %>
+        </div>
+
+        <!-- Order Date Column -->
+        <div class="d-flex flex-column flex-fill ms-3">
+            <h6>Order Date</h6>
+            <% for (let i=0; i < orders.length; i++) { %>
+                <li class="order-item">
+                    <span class="employee-name">
+                        <%= orders[i].order_date %>
+                    </span>
+                </li>
+                <% } %>
+        </div>
+
+        <!-- Order Price Column -->
+        <div class="d-flex flex-column flex-fill ms-3">
+            <h6>Order Price</h6>
+            <% for (let i=0; i < orders.length; i++) { %>
+                <li class="order-item">
+                    <span class="employee-name">
+                        $<%= (orders[i].price / 100).toFixed(2) %>
+                    </span>
+                </li>
+                <% } %>
+        </div>
+
+        <!-- Order Status Column -->
+        <div class="d-flex flex-column flex-fill ms-3">
+            <h6>Order Status</h6>
+            <% for (let i=0; i < orders.length; i++) { %>
+                <li class="order-item">
+                    <span class="employee-name">
+                        <%= orders[i].status %>
+                    </span>
+                </li>
+                <% } %>
+        </div>
+
+        <!-- View & Edit Button Column -->
+        <div class="d-flex flex-column ms-3">
+            <h6>View & Edit</h6>
+            <% for (let i=0; i < orders.length; i++) { %>
+                <li class="order-item text-end">
+                    <span class="employee-name">
+                        <a href="/orders/<%= orders[i].order_id %>" class="btn btn-danger btn-sm">View &
+                            Edit</a>
+                    </span>
+                </li>
+                <% } %>
+        </div>
+
+    </div>
+    <% if (orders.length==0) { %>
+
+        <h5 class="text-center my-4"> No orders made on this date.
+        </h5>
+        <% } %>

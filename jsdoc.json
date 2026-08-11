@@ -1,0 +1,12 @@
+{
+    "source": {
+      "include": ["views/**/*.js", "views/**/*.ejs"],
+      "exclude": ["node_modules", "temp", "build", "dist"],
+      "includePattern": ".+\\.(js|ejs)$"
+    },
+    "opts": {
+      "destination": "./docs", 
+      "recurse": true
+    }
+  }
+  

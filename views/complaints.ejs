@@ -1,0 +1,37 @@
+<% layout('partials/cashierBoilerPlate') %>
+
+<div class="text-center mb-4">
+    <h4>Customer Complaints</h4>
+</div>
+
+<% for (let i = 0; i < complaints.length; i++) { %>
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between">
+            <!-- Customer's name and email on the left -->
+            <div>
+                <strong><%= complaints[i].name %></strong><br>
+                <small><%= complaints[i].email %></small>
+            </div>
+            <!-- Date of the complaint on the right -->
+            <div class="text-end">
+                <small><%= complaints[i].date %></small>
+            </div>
+        </div>
+
+        <!-- Main body of the complaint text -->
+        <div class="card-body">
+            <p><%= complaints[i].complaint_text %></p>
+        </div>
+
+        <!-- Delete button at the bottom -->
+        <div class="card-footer text-end">
+            <form action="/complaints/<%= complaints[i].complaint_id %>/delete" method="POST" onsubmit="return confirm('Are you sure you want to delete this complaint?')">
+                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+            </form>
+        </div>
+    </div>
+<% } %>
+
+<% if (complaints.length == 0) { %>
+    <h5 class = "text-center">No complaints.</h5>
+    <% } %>

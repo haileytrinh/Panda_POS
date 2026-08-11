@@ -1,0 +1,29 @@
+{
+  "name": "project-3-62-jaileece-trully",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@google-cloud/translate": "^9.3.0",
+    "bootstrap": "^5.3.3",
+    "connect-flash": "^0.1.1",
+    "cookie-parser": "^1.4.7",
+    "ejs": "^3.1.10",
+    "ejs-mate": "^4.0.0",
+    "express": "^4.21.1",
+    "express-session": "^1.18.1",
+    "google-auth-library": "^9.14.2",
+    "nodemon": "^3.1.7",
+    "pg": "^8.13.1",
+    "react": "^18.3.1"
+  },
+  "devDependencies": {
+    "gulp": "^5.0.0",
+    "gulp-jsdoc3": "^3.0.0"
+  }
+}

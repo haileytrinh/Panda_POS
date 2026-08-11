@@ -1,0 +1,39 @@
+<% layout('partials/cashierBoilerPlate') %>
+
+    <a href="/menuEdit" class="btn btn-secondary btn-sm mb-3">
+        ← Back</a>
+    <div class="container mb-3">
+        <h4 class="text-center mb-4">Editing Ingredients for <%= foodItem.food_name %>
+        </h4>
+
+        <div class="mb-4">
+            <label for="Ingredients" class="fw-bold form-label">Ingredients:</label>
+            <ul class="list-group">
+                <% ingredients.forEach(function(ingredient) { %>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <%= ingredient.stock_name %>
+                            <form
+                                action="/menuEdit/<%= foodItem.food_id %>/ingredients/delete/<%= ingredient.stock_id %>"
+                                method="POST" class="mt-4">
+                                <button onclick="console.log(<%= ingredient.stock_id %>)" type="submit"
+                                    class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                    </li>
+                    <% }); %>
+            </ul>
+        </div>
+
+        <form action="/menuEdit/<%= foodItem.food_id %>/ingredients" method="POST" class="mt-4">
+            <div class="mb-3">
+                <label for="stock_id" class="fw-bold form-label">Add Ingredients:</label>
+                <select id="stock_id" name="stock_id" class="form-select" required>
+                    <% allStockData.forEach(function(stock) { %>
+                        <option value="<%= stock.stock_id %>">
+                            <%= stock.stock_name %>
+                        </option>
+                        <% }); %>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-success w-100">Add New Ingredient</button>
+        </form>
+    </div>

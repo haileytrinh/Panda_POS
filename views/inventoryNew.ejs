@@ -1,0 +1,48 @@
+<% layout('partials/cashierBoilerPlate') %>
+
+<a href="/inventory" class="btn btn-secondary btn-sm mb-3">
+    ← Back</a>
+<div class="container mb-5">
+    <h4 class="text-center mb-4">New Inventory Item</h4>
+
+    <form id="newInventoryForm" action="/inventory/add" method="POST">
+        <div class="mb-3">
+            <label for="stock_name" class="fw-bold form-label">Inventory Item Name:</label>
+            <input type="text" id="stock_name" name="stock_name" class="form-control" value="" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="minimum_boxes" class="fw-bold form-label">Minimum Boxes:</label>
+            <input type="number" id="minimum_boxes" name="minimum_boxes" class="form-control" value="" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="boxes" class="fw-bold form-label">Current Box Count:</label>
+            <input type="number" id="boxes" name="boxes" class="form-control" value="">
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Create New Inventory Item</button>
+    </form>
+</div>
+
+<script>
+// Client-side validation before form submission
+document.getElementById('newInventoryForm').addEventListener('submit', function(event) {
+    const minimumBoxes = document.getElementById('minimum_boxes').value;
+    const boxes = document.getElementById('boxes').value;
+
+    // Validate if 'minimum_boxes' is a positive number and greater than 0
+    if (isNaN(minimumBoxes) || parseInt(minimumBoxes) <= 0) {
+        alert('Please enter a valid number for Minimum Boxes.');
+        event.preventDefault();  // Prevent form submission
+        return;  // Stop further validation
+    }
+
+    // Optional: Validate if 'boxes' is a valid non-negative number (if provided)
+    if (boxes !== "" && (isNaN(boxes) || parseInt(boxes) < 0)) {
+        alert('Please enter a valid number for Current Box Count.');
+        event.preventDefault();  // Prevent form submission
+        return;  // Stop further validation
+    }
+});
+</script>

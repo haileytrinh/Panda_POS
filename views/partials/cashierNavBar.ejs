@@ -1,0 +1,65 @@
+<!-- No need for javadoc comments because this is an HTML boiler plate for the cashier navbar-->
+<nav class="navbar-color navbar navbar-expand-lg" style="color: white;">
+
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse d-flex justify-content-between" id="navbarNav">
+        <!-- Logo Section -->
+        <a class="navbar-brand" href="/">
+            <img src="https://cdn.worldvectorlogo.com/logos/panda-express-logo-1.svg" alt="Panda Express Logo"
+                style="height: 40px; padding-left: 20px;">
+        </a>
+
+        <!-- Date Section -->
+        <!-- <p id="datetime" class="d-none d-md-block" style="line-height: 40px;"></p> -->
+        <p id="datetime" class="d-none d-md-block" style="padding-top: 10px;"></p>
+
+
+        <!-- Navbar Links -->
+        <ul class="navbar-nav ms-auto">
+            <li class="nav-item active">
+                <a class="nav-link text-white" href="/cashier">Cashier</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link text-white" href="/complaints">Complaints</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link text-white" href="/inventory">Inventory</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/reports">Reports</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/orders">Orders</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/menuEdit">Menu</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/containerEdit">Containers</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/employees">Employees</a>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" id="employeeDropdown" role="button" data-bs-toggle="dropdown"
+                    href="cashier" aria-expanded="false">Profile</a>
+                <ul class="dropdown-menu" aria-labelledby="employeeDropdown">
+                    <li><a class="dropdown-item" href="/logout">Log Out</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+
+
+    <script>
+        // Get current date and time
+        var now = new Date();
+        var datetime = now.toLocaleString();
+        // Insert date and time into HTML
+        document.getElementById("datetime").innerHTML = datetime;
+    </script>
+</nav>

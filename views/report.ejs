@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <link rel="stylesheet" href="/styles/style.css">
+    <!-- Flatpickr CSS for the date picker -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    
+    <style>
+        .nav-tabs .nav-link {
+            color: #000 !important; /* Default text color */
+        }
+        .nav-tabs .nav-link.active {
+            background-color: #D1282E; /* Active tab background color */
+            color: white !important; /* Active tab text color */
+        }
+
+        footer {
+            position: fixed;
+            padding: 5px;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+</head>
+
+<body>
+
+    
+    <!-- No need for javadoc comments because this is an HTML boiler plate for the cashier navbar-->
+<nav class="navbar-color navbar navbar-expand-lg" style="color: white;">
+
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse d-flex justify-content-between" id="navbarNav">
+        <!-- Logo Section -->
+        <a class="navbar-brand" href="/">
+            <img src="https://cdn.worldvectorlogo.com/logos/panda-express-logo-1.svg" alt="Panda Express Logo"
+                style="height: 40px; padding-left: 20px;">
+        </a>
+
+        <!-- Date Section -->
+        <!-- <p id="datetime" class="d-none d-md-block" style="line-height: 40px;"></p> -->
+        <p id="datetime" class="d-none d-md-block" style="padding-top: 10px;"></p>
+
+
+        <!-- Navbar Links -->
+        <ul class="navbar-nav ms-auto">
+            <li class="nav-item active">
+                <a class="nav-link text-white" href="/cashier">Cashier</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link text-white" href="/complaints">Complaints</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link text-white" href="/inventory">Inventory</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/reports">Reports</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/orders">Orders</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/menuEdit">Menu</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/containerEdit">Containers</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/employees">Employees</a>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" id="employeeDropdown" role="button" data-bs-toggle="dropdown"
+                    href="cashier" aria-expanded="false">Profile</a>
+                <ul class="dropdown-menu" aria-labelledby="employeeDropdown">
+                    <li><a class="dropdown-item" href="/logout">Log Out</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+
+
+    <script>
+        // Get current date and time
+        var now = new Date();
+        var datetime = now.toLocaleString();
+        // Insert date and time into HTML
+        document.getElementById("datetime").innerHTML = datetime;
+    </script>
+</nav>
+
+    <div class="text-center my-4">
+        <h4>Reports</h4>
+    </div>
+
+    <div class="container mt-4">
+        <!-- Tabs Navigation -->
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link active" id="report1-tab" data-bs-toggle="tab" href="#report1" role="tab" aria-controls="report1" aria-selected="true">Sales Report</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="report2-tab" data-bs-toggle="tab" href="#report2" role="tab" aria-controls="report2" aria-selected="false">Product Usage Chart</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="report3-tab" data-bs-toggle="tab" href="#report3" role="tab" aria-controls="report3" aria-selected="false">Daily Report</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="report5-tab" data-bs-toggle="tab" href="#report5" role="tab" aria-controls="report5" aria-selected="false">Minimum Stock Report</a>
+            </li>
+        </ul>
+
+        <!-- Tabs Content -->
+        <div class="tab-content" id="myTabContent">
+            <!-- Sales Report Chart -->
+            <div class="tab-pane fade show active" id="report1" role="tabpanel" aria-labelledby="report1-tab">
+
+                <!-- Date Pickers for Start and End Dates and Run Report Button in One Row -->
+                <div class="row mt-3">
+                    <!-- Start Date -->
+                    <div class="col-md-3">
+                        <label for="startDate1">Start Date:</label>
+                        <input type="text" id="startDate1" class="form-control datepicker" placeholder="Select start date">
+                    </div>
+
+                    <!-- End Date -->
+                    <div class="col-md-3">
+                        <label for="endDate1">End Date:</label>
+                        <input type="text" id="endDate1" class="form-control datepicker" placeholder="Select end date">
+                    </div>
+
+                    <!-- Start Time -->
+                    <div class="col-md-2">
+                        <label for="startTime1">Start Time:</label>
+                        <select id="startTime1" class="form-control">
+                            <% timeOptions.forEach(time => { %>
+                                <option value="<%= time %>"><%= time %></option>
+                            <% }) %>
+                        </select>
+                    </div>
+
+                    <!-- End Time -->
+                    <div class="col-md-2">
+                        <label for="endTime1">End Time:</label>
+                        <select id="endTime1" class="form-control">
+                            <% timeOptions.forEach(time => { %>
+                                <option value="<%= time %>"><%= time %></option>
+                            <% }) %>
+                        </select>
+                    </div>
+
+                    <!-- Run Report Button -->
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button class="btn btn-primary w-100" id="runReportBtn1">Run Report</button>
+                    </div>
+                </div>
+
+                <!-- Table for Sales Report, adjusted to fit left half -->
+                <div class="row mt-3">
+                    <div class="col-md-6"> <!-- Use col-md-6 for the left half -->
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Menu Item</th>
+                                        <th>Quantity</th>
+                                        <th>Revenue</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="reportTableBody1">
+                                    <% foodReport1.forEach(item => { %>
+                                        <tr>
+                                            <td><%= item.container_type %></td> <!-- Match 'date' -->
+                                            <td><%= item.quantity_sold %></td> <!-- Match 'food_name' instead of 'ingredient' -->
+                                            <td><%= '$' + (item.total_revenue / 100).toFixed(2) %></td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Optionally, you can add another column for additional content if needed -->
+                    <div class="col-md-6">
+                        <!-- You can add more content here if needed, like charts or additional info -->
+                        <canvas id="salesChart" width="600" height="375"></canvas>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <!-- Product Usage Report -->
+            <div class="tab-pane fade" id="report2" role="tabpanel" aria-labelledby="report2-tab">
+
+                <!-- Date Pickers for Start and End Dates and Run Report Button in One Row -->
+                <div class="row mt-3">
+                    <!-- Start Date -->
+                    <div class="col-md-3">
+                        <label for="startDate2">Start Date:</label>
+                        <input type="text" id="startDate2" class="form-control datepicker" placeholder="Select start date">
+                    </div>
+
+                    <!-- End Date -->
+                    <div class="col-md-3">
+                        <label for="endDate2">End Date:</label>
+                        <input type="text" id="endDate2" class="form-control datepicker" placeholder="Select end date">
+                    </div>
+
+                    <!-- Start Time -->
+                    <div class="col-md-2">
+                        <label for="startTime2">Start Time:</label>
+                        <select id="startTime2" class="form-control">
+                            <% timeOptions.forEach(time => { %>
+                                <option value="<%= time %>"><%= time %></option>
+                            <% }) %>
+                        </select>
+                    </div>
+
+                    <!-- End Time -->
+                    <div class="col-md-2">
+                        <label for="endTime2">End Time:</label>
+                        <select id="endTime2" class="form-control">
+                            <% timeOptions.forEach(time => { %>
+                                <option value="<%= time %>"><%= time %></option>
+                            <% }) %>
+                        </select>
+                    </div>
+
+                    <!-- Run Report Button -->
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button class="btn btn-primary w-100" id="runReportBtn2">Run Report</button>
+                    </div>
+                </div>
+
+
+
+
+
+                <div class="row mt-3">
+
+                    <div class="col-md-6"> <!-- Use col-md-6 for the left half -->
+                        <!-- Product Usage Table -->
+                        <div class="table-responsive mt-3">
+                            <table class="table table-bordered">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Ingredient</th>
+                                        <th>Quantity</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="reportTableBody2">
+                                    <% foodReport2.forEach(item => { %>
+                                        <tr>
+                                            <td><%= item.ingredient %></td> <!-- Match 'ingredient' -->
+                                            <td><%= item.quantity_used %></td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <!-- You can add more content here if needed, like charts or additional info -->
+                        <canvas id="productUsageChart" width="600" height="375"></canvas>
+                    </div>
+
+
+                </div>
+
+
+                
+            </div>
+
+            <!-- Daily Report -->
+            <div class="tab-pane fade" id="report3" role="tabpanel" aria-labelledby="report3-tab">
+                <div class="table-responsive mt-3" >
+                    <div class="col-md-3 d-flex align-items-end mb-4">
+                        <button class="btn btn-primary w-100 me-2" id="xReportButton">X Report</button>
+                        <button class="btn btn-primary w-100" id="zReportButton">Z Report</button>
+                    </div>
+                    
+                    <table class="table table-bordered mt-4">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Hour</th>
+                                <th>Sales</th>
+                                <th>Total Price</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dailyReportTableBody">
+                            <% foodReport3.forEach(item => { %>
+                                <tr>
+                                    <td>
+                                        <%= new Date(`1970-01-01T${item.hour}:00:00`).toLocaleString('en-US', {hour: 'numeric', hour12: true}) %>
+                                      </td>
+                                                                          <td><%= item.sales %></td>
+                                    <td><%= '$' + (item.price / 100).toFixed(2) %></td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                    
+                </div>
+            </div>
+
+            <!-- Minimum Stock Report -->
+            <div class="tab-pane fade" id="report5" role="tabpanel" aria-labelledby="report5-tab">
+                <div class="table-responsive mt-3">
+                    <table class="table table-bordered">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Ingredient</th>
+                                <th>Quantity</th>
+                                <th>Minimum Required</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% foodReport5.forEach(item => { %>
+                                <tr>
+                                    <td><%= item.ingredient %></td>
+                                    <td><%= item.quantity %></td>
+                                    <td><%= item.minimum %></td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+        integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"
+        integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V"
+        crossorigin="anonymous"></script>
+
+    <!-- Flatpickr JS for the date picker functionality -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        // Initialize Flatpickr for date inputs with MM/DD/YYYY format
+        flatpickr(".datepicker", {
+            dateFormat: "m/d/Y", // Format as Month/Day/Year
+            allowInput: true
+        });
+    </script>
+
+    <!-- Include Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+    /**
+    * @file        Displays various reports that the manager might want to view for information
+    */
+        document.addEventListener("DOMContentLoaded", function() {
+       
+
+        // Function to format date as MM/DD/YYYY
+        /**
+        * @function formatDate
+        * @description displays the date correctly in month/day/year format
+        * @param {object} date - takes a computer generated date object in for processing
+        */
+        function formatDate(date) {
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${month}/${day}/${year}`;
+        }
+
+
+
+        function formatTime(hour) {
+            const period = hour >= 12 ? 'PM' : 'AM';
+            const formattedHour = hour % 12 === 0 ? 12 : hour % 12;
+            const minutes = '00';  // Assuming you are not storing minutes; if you have minutes, format accordingly.
+            return `${formattedHour}:00 ${period}`;
+        }
+
+        // Handle "Run Report" button click for Product Usage
+        /**
+        * @function handleRunReportClick
+        * @description loads in the report when the manager clicks run
+        * @param {string} reportType - tracks what report type we have chosen and loads the correct data
+        */
+        function handleRunReportClick(reportType) {
+            let startDate = "";
+            let endDate = "";
+            let startTime = "";
+            let endTime = "";
+            if (reportType === 'sales') { // actually sales report
+                startDate = document.getElementById("startDate1").value;
+                endDate = document.getElementById("endDate1").value;
+                startTime = document.getElementById("startTime1").value;
+                endTime = document.getElementById("endTime1").value;
+            } else if (reportType === 'productUsage') { // actually product usage
+                startDate = document.getElementById("startDate2").value;    
+                endDate = document.getElementById("endDate2").value;  
+                startTime = document.getElementById("startTime2").value;
+                endTime = document.getElementById("endTime2").value;             
+            }
+
+            console.log("Report Type:", reportType);
+            console.log("Start Date:", startDate);
+            console.log("End Date:", endDate);
+            console.log("Start Time:", startTime);
+            console.log("End Time:", endTime);
+            $.ajax({
+                url: '/generate-report', 
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ startDate, endDate, startTime, endTime, reportType }),
+
+                success: function(response) {
+                    console.log("AJAX response:", response); // Log the full response for debugging
+                    if (response) {
+                        
+                        if (reportType === 'sales' && response.salesReport) {
+                            updateReportTable(response.salesReport, 'sales');
+                            renderReport(response.salesReport, 'sales')
+                        } else if (reportType === 'productUsage' && response.productUsageReport) {
+                            updateReportTable(response.productUsageReport, 'productUsage');
+                            renderReport(response.productUsageReport, 'productUsage')
+
+                        } else if (reportType === 'xReport' && response.dailyReport) {
+                            updateReportTable(response.dailyReport, 'xReport');
+                        } else if (reportType === 'zReport' && response.dailyReport) {
+                            updateReportTable(response.dailyReport, 'zReport');
+                        } else {
+                            console.error("Unexpected response format:", response);
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error fetching report data:", error);
+                    console.error("Response Text:", xhr.responseText);
+                    console.error("Status Text:", xhr.statusText);
+                    console.error("Status Code:", xhr.status);
+                }
+
+            });
+        }
+
+        // Update the report table with new data
+        /**
+        * @function updateReportTable
+        * @description updates the report data with new information as it comes in
+        * @param {object} data - a specified date range for the displayed data
+        * @param {string} reportType - tracks what report type we have chosen and loads the correct data
+        */
+        function updateReportTable(data, reportType) {
+            let tableBody;
+
+            if (reportType === 'sales') {
+                tableBody = document.getElementById("reportTableBody1");
+            } else if (reportType === 'productUsage') {
+                tableBody = document.getElementById("reportTableBody2");
+            } else if (reportType === 'xReport') {
+                tableBody = document.getElementById("dailyReportTableBody");
+            } else if (reportType === 'zReport') {
+                tableBody = document.getElementById("dailyReportTableBody");
+            } else {
+                console.error("Invalid reportType provided.");
+            }
+
+            tableBody.innerHTML = ''; // Clear existing rows
+
+            if (data.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="3">No data available for the selected date range.</td></tr>';
+                return;
+            }
+
+            data.forEach(item => {
+                const row = document.createElement("tr");
+                if (reportType === 'sales') {
+                    row.innerHTML = `<td>${item.container_type}</td><td>${item.quantity_sold}</td><td>$${(item.total_revenue / 100).toFixed(2)}</td>`;
+                } else if (reportType === 'productUsage') {
+                    row.innerHTML = `<td>${item.ingredient}</td><td>${item.quantity_used}</td>`;
+                } else if (reportType === 'xReport') {
+                    row.innerHTML = `<td>${formatTime(item.hour)}</td><td>${item.sales}</td><td>$${(item.price / 100).toFixed(2)}</td>`;
+                } else if (reportType === 'zReport') {
+                    row.innerHTML = `<td>${formatTime(item.hour)}</td><td>${item.sales}</td><td>$${(item.price / 100).toFixed(2)}</td>`;
+                }
+                tableBody.appendChild(row);
+            });
+        }
+
+
+        
+        // Event listener for Product Usage Report button
+        document.getElementById("runReportBtn1").addEventListener("click", function() {
+            handleRunReportClick('sales');
+        });
+
+        // Event listener for Sales Report button
+        document.getElementById("runReportBtn2").addEventListener("click", function() {
+            handleRunReportClick('productUsage');
+        });
+
+
+        // Event listener for X Report button
+        document.getElementById("xReportButton").addEventListener("click", function() {
+            handleRunReportClick('xReport');
+
+        });
+        
+        // Event listener for Z Report button
+        document.getElementById("zReportButton").addEventListener("click", function() {
+            handleRunReportClick('zReport');
+            document.getElementById("xReportButton").disabled = true;
+
+        });
+        
+
+
+
+
+
+
+
+
+
+        // Global variables to store the Chart.js instances for both charts
+let salesChartInstance = null;
+let productUsageChartInstance = null;
+
+function renderReport(report, reportType) {
+    console.log("report before rendering:", report);
+
+    if (!Array.isArray(report)) {
+        console.error("report is not an array or is undefined:", report);
+        return;
+    }
+
+    // Determine which canvas to use based on reportType
+    let canvasId = '';
+    let chartData = {};
+    let chartLabels = [];
+    let chartQuantities = [];
+    let chartPrices = [];
+
+    if (reportType === 'sales') {
+        canvasId = 'salesChart'; // Set the canvas ID for sales chart
+        // Sales chart data (menu items, total revenue, and quantities)
+        chartLabels = report.map(item => item.container_type); // Menu items
+        chartPrices = report.map(item => (item.total_revenue / 100).toFixed(2)); // Total prices
+        chartQuantities = report.map(item => item.quantity_sold); // Quantities
+    } else if (reportType === 'productUsage') {
+        canvasId = 'productUsageChart'; // Set the canvas ID for product usage chart
+        // Product usage chart data (ingredients and quantities)
+        chartLabels = report.map(item => item.ingredient); // Ingredients
+        chartQuantities = report.map(item => item.quantity_used); // Quantities
+        chartPrices = null; // No price data for productUsageChart
+    }
+
+    // Destroy existing chart instance based on the chart type
+    if (reportType === 'sales' && salesChartInstance) {
+        salesChartInstance.destroy();
+    } else if (reportType === 'productUsage' && productUsageChartInstance) {
+        productUsageChartInstance.destroy();
+    }
+
+    const canvas = document.getElementById(canvasId);
+    canvas.width = 600; // Set width
+    canvas.height = 375; // Set height 
+
+    // Chart.js configuration
+    const ctx = canvas.getContext('2d');
+
+    // Create or update the appropriate chart based on reportType
+    if (reportType === 'sales') {
+        salesChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: chartLabels, // Menu items on X-axis
+                datasets: [{
+                    label: 'Quantity Sold',
+                    data: chartPrices, // Total prices on Y-axis
+                    backgroundColor: '#D1282E', // Red bars
+                    borderColor: '#D1282E', // Red border
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Revenue ($)' // Y-axis title
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                const index = tooltipItem.dataIndex;
+                                return `Revenue: $${tooltipItem.raw} | Quantity Sold: ${chartQuantities[index]}`;
+                            }
+                        }
+                    },
+                    legend: {
+                        display: false // Disable the legend
+                    },
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                        formatter: function(value, context) {
+                            const index = context.dataIndex;
+                            return `Qty: ${chartQuantities[index]}`; // Display quantity above the bar
+                        }
+                    }
+                }
+            }
+        });
+    } else if (reportType === 'productUsage') {
+        productUsageChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: chartLabels, // Ingredients on X-axis
+                datasets: [{
+                    label: 'Quantity Used',
+                    data: chartQuantities, // Quantities on Y-axis
+                    backgroundColor: '#D1282E', // Red bars
+                    borderColor: '#D1282E', // Red border
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Quantity Used' // Y-axis title for product usage
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                const index = tooltipItem.dataIndex;
+                                return `Quantity Used: ${tooltipItem.raw}`;
+                            }
+                        }
+                    },
+                    legend: {
+                        display: false // Disable the legend
+                    },
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                        formatter: function(value, context) {
+                            const index = context.dataIndex;
+                            return `Qty: ${chartQuantities[index]}`; // Display quantity above the bar
+                        }
+                    }
+                }
+            }
+        });
+    }
+}
+
+
+
+
+
+
+    });
+
+
+    </script>
+
+
+
+
+
+</body>
+
+</html>
+
+<footer class="footer bg-dark py-3 mt-auto" style="background-color: #D1282E;">
+    <div class="container text-center">
+      
+        <p class="text-white">&copy; <%= new Date().getFullYear() %> (Team 62: Jaileece Trully)</p>
+    </div>
+</footer>

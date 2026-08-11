@@ -1,0 +1,974 @@
+<% layout('partials/cashierBoilerPlate') %>
+
+<script>
+    /**
+    * @file        Cashier Ordering and Functionality
+    * @desciption This EJS file includes functionalities for placing an order on the POS system
+    */
+
+    // Initialize each container
+    const bowlTracker = ["none", "none"];       
+    const plateTracker = ["none", "none", "none"];  
+    const biggerPlateTracker = ["none", "none", "none", "none"]; 
+    const aLaCarteTracker = ["none"];   
+    const drinkTracker = ["none"];  
+    const appetizerTracker = ["none"]; 
+
+    // Tracks food items in a container
+    let entreeNum = 0;
+    let sideNum = 0;
+    let appetizerNum = 0;
+    let drinkNum = 0;
+
+    // Track active container
+    let currentContainer = null; 
+
+    let lineCounter = 0; // Global counter to track line numbers for deletion on the order
+    
+    let totalPrice = 0;
+
+    // Tracks the amount of each container in the order
+    let numBowls = 0;
+    let numPlates = 0;
+    let numBiggerPlates = 0;
+    let numALaCartes = 0;
+    let numAppetizers = 0;
+    let numDrinks = 0;
+
+    // A-La-Carte trackers
+    let entree = false;
+    let side = false;
+
+    /**
+    * @function enterButton
+    * @description Successfully validates an order and sets all the tracking variables back to its default state
+    */
+    function enterButton(){
+        correct = false;
+        if(currentContainer=="Bowl"){
+            if(sideNum==1 && entreeNum==1){
+                correct = true;
+            }
+        }
+        else if(currentContainer == "Plate"){
+            if(sideNum == 1 && entreeNum == 2){
+                correct = true;
+            }
+        }
+        else if(currentContainer == "Bigger Plate"){
+            if(sideNum == 1 && entreeNum == 3){
+                correct = true;
+            }
+        }
+        else if(currentContainer =="A-La-Carte"){
+            if(entreeNum == 1 && sideNum == 0){
+                correct = true;
+                entree = true;
+            } else if (entreeNum == 0 && sideNum == 1) {
+                correct = true;
+                side = true;
+            }
+        }
+        else if(currentContainer == "Appetizer"){
+            if(appetizerNum == 1){
+                correct = true;
+            }
+        }
+        else if(currentContainer == "Drink"){
+            if(drinkNum==1){
+                correct = true;
+            }
+        }
+        if(correct){
+            // Updates the total price based on the completed container
+            displayErrorMessage("Successfully added "+ currentContainer + "!");
+            switch (currentContainer) {
+            case "Appetizer":
+                totalPrice += <%= container[0].price %>;
+                document.getElementById('total-price').textContent = (totalPrice / 100).toFixed(2);
+                break;
+            case "Drink":
+                totalPrice += <%= container[1].price %>;
+                document.getElementById('total-price').textContent = (totalPrice / 100).toFixed(2);
+                break;
+            case "Bigger Plate":
+                totalPrice += <%= container[5].price %>;
+                document.getElementById('total-price').textContent = (totalPrice / 100).toFixed(2);
+                break;
+            case "Bowl":
+                totalPrice += <%= container[3].price %>;
+                document.getElementById('total-price').textContent = (totalPrice / 100).toFixed(2);
+                break;
+            case "Plate":
+                totalPrice += <%= container[4].price %>;
+                document.getElementById('total-price').textContent = (totalPrice / 100).toFixed(2);
+                break;
+            case "A-La-Carte":
+                totalPrice += <%= container[2].price %>;
+                document.getElementById('total-price').textContent = (totalPrice / 100).toFixed(2);
+                break;
+            default:
+                displayErrorMessage("ERROR: Container not recognized.")
+            }
+
+            //reset all values back to default
+            entreeNum = 0;
+            sideNum = 0;
+            drinkNum = 0;
+            appetizerNum = 0;
+            // Reset container arrays if needed
+            bowlTracker.fill("none");
+            plateTracker.fill("none");
+            biggerPlateTracker.fill("none");
+            aLaCarteTracker.fill("none");
+            drinkTracker.fill("none");
+            appetizerTracker.fill("none");
+            currentContainer = null;
+        }
+        else{
+            displayErrorMessage("ERROR: Incomplete container.");
+        }
+    }
+
+    const maxOrderId = <%= maxOrderId %>;
+    /**
+    * @function checkOutButton
+    * @description pushes all the valid orders on screen to the database, doesn't work if there is an unfinished container
+    */
+    let currentOrder = []; // Tracks containers for the current order
+    async function checkOutButton() {
+        // Loop through orderText and create containers
+        const orderText = document.querySelector('.order-container-display').textContent.split('\n').filter((line) => line.includes(':'));
+        for (let line of orderText) { // For each container in the order screen
+            // Split the order line to extract container type and items
+            var [containerName, itemsStr] = line.split(':');
+            itemsStr = itemsStr.trim();
+            containerName = containerName.trim().split(' ').slice(1).join(' ').trim();
+            const items = itemsStr
+                .replace(/^\[|\]$/g, '') // Remove surrounding brackets (if any)
+                .split(',')              // Split by commas
+                .map(item => item.trim()) // Trim extra spaces
+                .filter(item => item !== ''); // Remove empty strings
+
+            let containerInfo = [];
+            
+            // 0 - ID
+            containerInfo.push(Date.now()); // Not really used anymore, mainly for continuity
+            // 1 - Price
+            if (containerName == "Appetizer") {
+                containerInfo.push(<%= container[0].price %>);
+                // 2 - Container Name
+                containerInfo.push(containerName);
+                // 3 - Entree, assuming side is selected first by cashier
+                containerInfo.push();
+                // 4 - Side
+                containerInfo.push();
+                // 5 - Appetizer/Drink
+                containerInfo.push(items[0]);
+            } else if (containerName == "Drink") {
+                containerInfo.push(<%= container[1].price %>)
+                // 2 - Container Name
+                containerInfo.push(containerName);
+                // 3 - Entree, assuming side is selected first by cashier
+                containerInfo.push();
+                // 4 - Side
+                containerInfo.push();
+                // 5 - Appetizer/Drink
+                containerInfo.push(items[0]);
+            } else if (containerName == "Bigger Plate") {
+                containerInfo.push(<%= container[5].price %>);
+                // 2 - Container Name
+                containerInfo.push(containerName);
+                // 3 - Entree, assuming side is selected first by cashier
+                var entrees = [];
+                entrees.push(items[1]);
+                entrees.push(items[2]);
+                entrees.push(items[3]);
+                containerInfo.push(entrees);
+                // 4 - Side
+                containerInfo.push(items[0]);
+                // 5 - Appetizer/Drink
+                containerInfo.push([]);
+            } else if (containerName == "Bowl") {
+                containerInfo.push(<%= container[3].price %>);
+                // 2 - Container Name
+                containerInfo.push(containerName);
+                // 3 - Entree, assuming side is selected first by cashier
+                containerInfo.push(items[1]);
+                // 4 - Side
+                containerInfo.push(items[0]);
+                // 5 - Appetizer/Drink
+                containerInfo.push([]);
+            } else if (containerName == "Plate") {
+                containerInfo.push(<%= container[4].price %>);
+                // 2 - Container Name
+                containerInfo.push(containerName);
+                // 3 - Entree, assuming side is selected first by cashier
+                var entrees = [];
+                entrees.push(items[1]);
+                entrees.push(items[2]);
+                containerInfo.push(entrees);
+                // 4 - Side
+                containerInfo.push(items[0]);
+                // 5 - Appetizer/Drink
+                containerInfo.push([]);
+            } else if (containerName == "A-La-Carte") {
+                containerInfo.push(<%= container[2].price %>);
+                // 2 - Container Name
+                containerInfo.push(containerName);
+                if (entree == true) {
+                    // 3 - Entree, assuming side is selected first by cashier
+                    containerInfo.push(items[0]);
+                    // 4 - Side
+                    containerInfo.push([]);
+                    // 5 - Appetizer/Drink
+                    containerInfo.push([]);
+                } else if (side == true) {
+                    // 3 - Entree, assuming side is selected first by cashier
+                    containerInfo.push([]);
+                    // 4 - Side
+                    containerInfo.push(items[0]);
+                    // 5 - Appetizer/Drink
+                    containerInfo.push([]);
+                }
+                entree = false;
+                side = false;
+            }
+
+            // Adds container to order
+            currentOrder.push(containerInfo);
+        }
+
+        // Get the exact date and time of the order
+        const dateTime = new Date();
+        const orderDate = dateTime.getFullYear() + `-` + (dateTime.getMonth() + 1) + `-` + dateTime.getDate();
+        const orderTime = dateTime.getHours() + `:` + dateTime.getMinutes() + `:` + dateTime.getSeconds();
+        const newOrderId = maxOrderId + 1;
+        // Create complete order locally
+        const customerOrder = {
+            cart: currentOrder,
+            order_id: newOrderId,
+            employee_id: Math.floor((Math.random() * 4) + 1),
+            date: orderDate,
+            time: orderTime,
+            is_in_process: 'f',
+            status: "fulfilled"
+        };
+
+        fetch('/pushOrder', {
+            body: JSON.stringify(customerOrder),
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(result => {
+            alert('Order completed!');
+            return fetch('/decrementStock', {
+                body: JSON.stringify({ cart: customerOrder.cart }),
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+            });
+        })
+        .then(stockResult => stockResult.json())
+        .then(data => {
+            if (data.success) {
+                //alert('Stock updated successfully!');
+                window.location.reload();
+            } else {
+                alert(`Failed to update stock: ${data.message}`);
+            }
+        })
+        .catch(error => {
+            console.error('Error processing order:', error);
+            alert('Error processing order.');
+        });
+    }
+    //display any given error message onto the screen
+    /**
+    * @function displayErrorMessage
+    * @description displays a given function's error message onto the POS screen for the cashier to see
+    * @param {string} newErrorText- The text to be displayed
+    */
+    function displayErrorMessage(newErrorText) {
+        const errorText = document.querySelector('.error-text'); // Make sure this matches your error message element's class or ID
+        errorText.textContent = newErrorText;
+    }
+    // Function to handle adding a container based on type
+    /**
+    * @function addContainer
+    * @description triggers the appropriate container button depending on what text is on the button
+    * @param {string} containerName - The container name is grabbed from the clicked button
+    * @param {number} containerPrice - The price of the container is grabbed from the database
+    */
+    function addContainer(containerName, containerPrice) {
+        switch(containerName) {
+            case "Appetizer":
+                appetizerPrice = containerPrice;
+                appetizerButton(containerPrice);
+                break;
+            case "Drink":
+                drinkPrice = containerPrice;
+                drinkButton(containerPrice);
+                break;
+            case "Bowl":
+                bowlPrice = containerPrice;
+                bowlButton(containerPrice);
+                break;
+            case "Plate":
+                platePrice = containerPrice;
+                plateButton(containerPrice);
+                break;
+            case "Bigger Plate":
+                biggerPlatePrice = containerPrice;
+                biggerPlateButton(containerPrice);
+                break;
+            case "A-La-Carte":
+                aLaCartePrice = containerPrice;
+                aLaCarteButton(containerPrice);
+                break;
+            default:
+                //none
+        }
+    }
+    //Function to handle selecting the Bowl container
+    /**
+    * @function bowlButton
+    * @description Adds a default empty bowl line onto the screen
+    * @param {number} containerPrice - The price of the container is grabbed from the database
+    */
+    function bowlButton(containerPrice) {
+        if (currentContainer == null) {
+            currentContainer = "Bowl";
+
+            const orderContainer = document.querySelector('.order-container-display');
+
+            const line = document.createElement('div');
+            line.classList.add('order-line');
+
+            line.innerHTML = `
+                <button class="delete-line">X</button>
+                $${(containerPrice / 100).toFixed(2)} Bowl: [${bowlTracker[0]}, ${bowlTracker[1]}]
+            `;
+
+            line.querySelector('.delete-line').addEventListener('click', () => {
+                const lineNumber = parseInt(line.dataset.lineNumber);
+                deleteFromOrder(deleteId);
+                line.remove();
+            });
+
+            orderContainer.appendChild(line);
+            lineCounter++;
+        } else {
+            displayErrorMessage("Clear or Enter current container before starting a new one.");
+        }
+    }
+
+    // Function to handle selecting the Plate container
+    /**
+    * @function plateButton
+    * @description Adds a default empty plate line onto the screen
+    * @param {number} containerPrice - The price of the container is grabbed from the database
+    */
+    function plateButton(containerPrice) {
+        if (currentContainer == null) {
+            currentContainer = "Plate";
+
+            const orderContainer = document.querySelector('.order-container-display');
+
+            const line = document.createElement('div');
+            line.classList.add('order-line');
+            // line.dataset.lineNumber = lineCounter;
+
+            line.innerHTML = `
+                <button class="delete-line">X</button>
+                $${(containerPrice / 100).toFixed(2)} Plate: [${plateTracker[0]}, ${plateTracker[1]}, ${plateTracker[2]}]
+            `;
+
+            line.querySelector('.delete-line').addEventListener('click', () => {
+                const lineNumber = parseInt(line.dataset.lineNumber);
+                deleteFromOrder();
+                line.remove();
+            });
+
+            orderContainer.appendChild(line);
+            // lineCounter++;
+        } else {
+            displayErrorMessage("Clear or Enter current container before starting a new one.");
+        }
+    }
+
+    // Function to handle selecting the Bigger Plate container
+    /**
+    * @function biggerPlateButton
+    * @description Adds a default empty bigger plate line onto the screen
+    * @param {number} containerPrice - The price of the container is grabbed from the database
+    */
+    function biggerPlateButton(containerPrice) {
+        if (currentContainer == null) {
+            currentContainer = "Bigger Plate";
+
+            const orderContainer = document.querySelector('.order-container-display');
+
+            const line = document.createElement('div');
+            line.classList.add('order-line');
+            // line.dataset.lineNumber = lineCounter;
+
+            line.innerHTML = `
+                <button class="delete-line">X</button>
+                $${(containerPrice / 100).toFixed(2)} Bigger Plate: [${biggerPlateTracker[0]}, ${biggerPlateTracker[1]}, ${biggerPlateTracker[2]}, ${biggerPlateTracker[3]}]
+            `;
+
+            line.querySelector('.delete-line').addEventListener('click', () => {
+                const lineNumber = parseInt(line.dataset.lineNumber);
+                deleteFromOrder();
+                line.remove();
+            });
+
+            orderContainer.appendChild(line);
+            // lineCounter++;
+        } else {
+            displayErrorMessage("Clear or Enter current container before starting a new one.");
+        }
+    }
+
+    // Function to handle selecting the A-La-Carte container
+    /**
+    * @function aLaCarteButton
+    * @description Adds a default empty a-la-carte line onto the screen
+    * @param {number} containerPrice - The price of the container is grabbed from the database
+    */
+    function aLaCarteButton(containerPrice) {
+        if (currentContainer == null) {
+            currentContainer = "A-La-Carte";
+
+            const orderContainer = document.querySelector('.order-container-display');
+
+            const line = document.createElement('div');
+            line.classList.add('order-line');
+            // line.dataset.lineNumber = lineCounter;
+
+            line.innerHTML = `
+                <button class="delete-line">X</button>
+                $${(containerPrice / 100).toFixed(2)} A-La-Carte: [${aLaCarteTracker[0]}]
+            `;
+
+            line.querySelector('.delete-line').addEventListener('click', () => {
+                const lineNumber = parseInt(line.dataset.lineNumber);
+                deleteFromOrder(lineNumber);
+                line.remove();
+            });
+
+            orderContainer.appendChild(line);
+            // lineCounter++;
+        } else {
+            displayErrorMessage("Clear or Enter current container before starting a new one.");
+        }
+    }
+
+    // Function to handle selecting the Appetizer container
+    /**
+    * @function appetizerButton
+    * @description Adds a default empty appetizer line onto the screen
+    * @param {number} containerPrice - The price of the container is grabbed from the database
+    */
+    function appetizerButton(containerPrice) {
+        if (currentContainer == null) {
+            currentContainer = "Appetizer";
+
+            const orderContainer = document.querySelector('.order-container-display');
+
+            const line = document.createElement('div');
+            line.classList.add('order-line');
+            // line.dataset.lineNumber = lineCounter;
+
+            line.innerHTML = `
+                <button class="delete-line">X</button>
+                $${(containerPrice / 100).toFixed(2)} Appetizer: [${appetizerTracker[0]}]
+            `;
+
+            line.querySelector('.delete-line').addEventListener('click', () => {
+                const lineNumber = parseInt(line.dataset.lineNumber);
+                deleteFromOrder(lineNumber);
+                line.remove();
+            });
+
+            orderContainer.appendChild(line);
+            // lineCounter++;
+        } else {
+            displayErrorMessage("Clear or Enter current container before starting a new one.");
+        }
+    }
+
+    // Function to handle selecting the Drink container
+    /**
+    * @function drinkButton
+    * @description Adds a default empty drink line onto the screen
+    * @param {number} containerPrice - The price of the container is grabbed from the database
+    */
+    function drinkButton(containerPrice) {
+        if (currentContainer == null) {
+            currentContainer = "Drink";
+
+            const orderContainer = document.querySelector('.order-container-display');
+
+            const line = document.createElement('div');
+            line.classList.add('order-line');
+            // line.dataset.lineNumber = lineCounter;
+
+            line.innerHTML = `
+                <button class="delete-line">X</button>
+                $${(containerPrice / 100).toFixed(2)} Drink: [${drinkTracker[0]}]
+            `;
+
+            line.querySelector('.delete-line').addEventListener('click', () => {
+                const lineNumber = parseInt(line.dataset.lineNumber);
+                deleteFromOrder(lineNumber);
+                line.remove();
+            });
+
+            orderContainer.appendChild(line);
+            // lineCounter++;
+        } else {
+            displayErrorMessage("Clear or Enter current container before starting a new one.");
+        }
+    }
+
+    //Reset container states after an order is deleted
+    /**
+    * @function clearContainer
+    * @description clears all the contents of the current container and sets everything back to its default state 
+    */
+    function clearContainer() {
+        currentContainer = null;
+        entreeNum = 0;
+        sideNum = 0;
+        drinkNum = 0;
+        appetizerNum = 0;
+
+        bowlTracker.fill("none");
+        plateTracker.fill("none");
+        biggerPlateTracker.fill("none");
+        aLaCarteTracker.fill("none");
+        drinkTracker.fill("none");
+        appetizerTracker.fill("none");
+        displayErrorMessage("Current container details are cleared, proceed with new container.");
+    }
+
+    // DON'T ADD THIS TO DOCUMENTATION
+    function deleteFromOrder(containerId) {
+        // just leave this here lowkey
+    }
+
+    /**
+    * @function addFood
+    * @description triggers the given general food method based on the type of food clicked
+    * @param {string} foodName - the food name is grabbed from the clicked button
+    * @param {string} itemType - the item type is grabbed from the database
+    */
+    function addFood(foodName, itemType) {
+        if(currentContainer){
+            if (itemType === 'entree'||itemType=='both') {
+                generalEntreeButton(foodName);
+            } else if (itemType === 'side') {
+                generalSideButton(foodName);
+            } else if (itemType === 'drink') {
+                generalDrinkButton(foodName);  // Add the corresponding drink handling
+            } else if (itemType === 'appetizer') {
+                generalAppetizerButton(foodName);  // Add the corresponding drink handling
+            }
+        }
+        else if(currentContainer == null){
+            displayErrorMessage("ERROR: No Container Active.")
+        }
+    }
+
+    // Function to handle the Appetizer container
+    /**
+    * @function generalAppetizerButton
+    * @description correctly handles adding an appetizer to the appetizer container
+    * @param {string} foodName - Used to update the display with the chosen food
+    */
+    function generalAppetizerButton(foodName) {
+        // Check if the current container is one that allows entrees
+        if (currentContainer === "Appetizer" && appetizerNum==0 ) {
+            
+            // Find the next empty spot in container tracker
+            const nextIndex = appetizerTracker.findIndex(item => item === "none" || item === undefined);
+            // Add the food name if there's an empty spot
+            if (nextIndex !== -1) {
+                appetizerTracker[nextIndex] = foodName;
+                appetizerNum++;
+                updateOrderDisplay();                      
+            } else {
+                displayErrorMessage("ERROR: Added too many appetizers. Clear or enter the current container.");
+            }
+        }
+        else if(currentContainer != "Appetizer"){
+            displayErrorMessage("ERROR: Cannot add appetizer to this container.");
+        }
+    }
+
+    // Function to handle the Entree container
+    /**
+    * @function generalEntreeButton
+    * @description correctly handles adding an entree to the active container
+    * @param {string} foodName - Used to update the display with the chosen food
+    */
+    function generalEntreeButton(foodName) {
+        // Check if the current container is one that allows entrees
+        if (currentContainer === "Bowl" && entreeNum==0) {
+            // Find the next empty spot in bowlTracker (assume it has a fixed length of 2)
+            const nextIndex = bowlTracker.findIndex(item => item === "none" || item === undefined);
+            // Add the food name if there's an empty spot
+            if (nextIndex !== -1) {
+                bowlTracker[nextIndex] = foodName;
+                entreeNum++;
+                updateOrderDisplay();                       
+            }
+        }
+        else if(currentContainer === "Bowl" && entreeNum>1) {    
+            displayErrorMessage("ERROR: Added too many entrees. Clear or complete the current container.");
+        }
+        if(currentContainer ==="Plate" && entreeNum<2){
+            // Find the next empty spot in plateTracker
+            const nextIndex = plateTracker.findIndex(item => item === "none" || item === undefined);
+            // Add the food name if there's an empty spot
+            if (nextIndex !== -1) {
+                plateTracker[nextIndex] = foodName;
+                entreeNum++;
+                updateOrderDisplay();                   
+            }
+        }
+        else if(currentContainer ==="Plate" && entreeNum>=2){
+            displayErrorMessage("ERROR: Added too many entrees. Clear or complete the current container.");
+        }
+        if(currentContainer ==="Bigger Plate" && entreeNum<3){
+            // Find the next empty spot in biggerPlateTracker 
+            const nextIndex = biggerPlateTracker.findIndex(item => item === "none" || item === undefined);
+            // Add the food name if there's an empty spot
+            if (nextIndex !== -1) {
+                biggerPlateTracker[nextIndex] = foodName;
+                entreeNum++;
+                updateOrderDisplay();                   
+            }
+        }
+        else if(currentContainer ==="Bigger Plate" && entreeNum>=3){
+            displayErrorMessage("ERROR: Added too many entrees. Clear or complete the current container.");
+        }
+        if(currentContainer ==="A-La-Carte" && entreeNum<1 && sideNum<1){
+            // Find the next empty spot in bowlTracker (assume it has a fixed length of 2)
+            const nextIndex = aLaCarteTracker.findIndex(item => item === "none" || item === undefined);
+            // Add the food name if there's an empty spot
+            if (nextIndex !== -1) {
+                aLaCarteTracker[nextIndex] = foodName;
+                entreeNum++;
+                updateOrderDisplay();                   
+            }
+        }
+        else if(currentContainer ==="A-La-Carte" && (entreeNum>=1 || sideNum >=1)){
+            displayErrorMessage("ERROR: Added too many entrees. Clear or complete the current container.");
+        }
+        if(currentContainer == "Appetizer"|| currentContainer == "Drink"){
+            displayErrorMessage("ERROR: Cannot add entree into this container.");
+        }
+    }
+    //Function to handle drink container
+    /**
+    * @function generalDrinkButton
+    * @description correctly handles adding a drink to the drink container
+    * @param {string} foodName - Used to update the display with the chosen food
+    */
+    function generalDrinkButton(foodName) {
+        if(currentContainer === "Drink" && drinkNum<1){
+            // Find the next empty spot in bowlTracker (assume it has a fixed length of 2)
+            const nextIndex = drinkTracker.findIndex(item => item === "none" || item === undefined);
+            // Add the food name if there's an empty spot
+            if (nextIndex !== -1) {
+                drinkTracker[nextIndex] = foodName;
+                drinkNum++;
+                updateOrderDisplay();                   
+            }
+        }
+        else if(currentContainer ==="Drink" && drinkNum==1){
+            displayErrorMessage("ERROR: Added too many drinks. Clear or complete the current container.");
+        }
+        else if(currentContainer != "Drink") {
+            displayErrorMessage("ERROR: Cannot add drink into this container.");
+        }
+    }
+
+    // Function to handle the Side container
+    /**
+    * @function generalSideButton
+    * @description correctly handles adding a side to the active container
+    * @param {string} foodName - Used to update the display with the chosen food
+    */
+    function generalSideButton(foodName) {
+        // Check if the current container is one that allows sides
+        if ((currentContainer === "Bowl") && sideNum<1) {
+            // Find the next empty spot in bowlTracker (assume it has a fixed length of 2)
+            const nextIndex = bowlTracker.findIndex(item => item === "none" || item === undefined);
+            // Add the food name if there's an empty spot
+            if (nextIndex !== -1) {
+                bowlTracker[nextIndex] = foodName;
+                sideNum++;
+                updateOrderDisplay();                  
+            }
+        }
+        else if ((currentContainer === "A-La-Carte") && sideNum<1 && entreeNum<1) {
+            // Find the next empty spot in aLaCarte (assume it has a fixed length of 1)
+            const nextIndex = aLaCarteTracker.findIndex(item => item === "none" || item === undefined);
+            // Add the food name if there's an empty spot
+            if (nextIndex !== -1) {
+                aLaCarteTracker[nextIndex] = foodName;
+                sideNum++;
+                updateOrderDisplay();                  
+            }
+        }
+        else if ((currentContainer === "Plate") && sideNum<1) {
+            // Find the next empty spot in bowlTracker (assume it has a fixed length of 2)
+            const nextIndex = plateTracker.findIndex(item => item === "none" || item === undefined);
+            // Add the food name if there's an empty spot
+            if (nextIndex !== -1) {
+                plateTracker[nextIndex] = foodName;
+                sideNum++;
+                updateOrderDisplay();                      
+            }
+        }
+        else if ((currentContainer === "Bigger Plate") && sideNum<1) {
+            // Find the next empty spot in bowlTracker (assume it has a fixed length of 2)
+            const nextIndex = biggerPlateTracker.findIndex(item => item === "none" || item === undefined);
+            // Add the food name if there's an empty spot
+            if (nextIndex !== -1) {
+                biggerPlateTracker[nextIndex] = foodName;
+                sideNum++;
+                updateOrderDisplay();
+            }
+        }
+        else if((currentContainer === "Bowl"||currentContainer === "Plate"||currentContainer === "Bigger Plate") && sideNum==1){
+            displayErrorMessage("ERROR: Added too many sides. Clear or complete the current container.");
+        }
+        else if(currentContainer ==="A-La-Carte" && (entreeNum>=1 || sideNum >=1)){
+            displayErrorMessage("ERROR: Added too many sides. Clear or complete the current container.");
+        }
+        else if(currentContainer == "Appetizer"||currentContainer == "Drink" ){
+            displayErrorMessage("ERROR: Cannot add a side to this container.");
+        }
+    }
+
+    //Every time you add a food to the container, update order display is called to display the new arrays
+    /**
+    * @function updateOrderDisplay
+    * @description updates the order text every time a cashier adds a new food to the order
+    */
+    function updateOrderDisplay() {
+        const orderContainer = document.querySelector('.order-container-display');
+
+        // Get all the lines in the order container
+        const lines = orderContainer.querySelectorAll('.order-line');
+
+        // Get the last line (if exists)
+        const lastLine = lines[lines.length - 1];
+
+        // Calculate the new line content
+        let newLine = '';
+        let containerType = '';
+        let tracker = [];
+
+        if (currentContainer === "Bowl") {
+            tracker = bowlTracker;
+            newLine = `$${(bowlPrice / 100).toFixed(2)} Bowl: [${tracker.join(', ')}]`;
+            containerType = 'Bowl';
+        } else if (currentContainer === "Plate") {
+            tracker = plateTracker;
+            newLine = `$${(platePrice / 100).toFixed(2)} Plate: [${tracker.join(', ')}]`;
+            containerType = 'Plate';
+        } else if (currentContainer === "Bigger Plate") {
+            tracker = biggerPlateTracker;
+            newLine = `$${(biggerPlatePrice / 100).toFixed(2)} Bigger Plate: [${tracker.join(', ')}]`;
+            containerType = 'Bigger Plate';
+        } else if (currentContainer === "A-La-Carte") {
+            tracker = aLaCarteTracker;
+            newLine = `$${(aLaCartePrice / 100).toFixed(2)} A-La-Carte: [${tracker.join(', ')}]`;
+            containerType = 'A-La-Carte';
+        } else if (currentContainer === "Appetizer") {
+            tracker = appetizerTracker;
+            newLine = `$${(appetizerPrice / 100).toFixed(2)} Appetizer: [${tracker.join(', ')}]`;
+            containerType = 'Appetizer';
+        } else if (currentContainer === "Drink") {
+            tracker = drinkTracker;
+            newLine = `$${(drinkPrice / 100).toFixed(2)} Drink: [${tracker.join(', ')}]`;
+            containerType = 'Drink';
+        }
+
+        // If there's no line, create a new one
+        if (!lastLine) {
+            const line = document.createElement('div');
+            line.classList.add('order-line');
+            line.innerHTML = `
+                <button class="delete-line" data-container="${containerType}">X</button>
+                ${newLine}
+            `;
+            orderContainer.appendChild(line);
+        } else {
+            // Otherwise, update the last line
+            lastLine.innerHTML = `
+                <button class="delete-line" data-container="${containerType}">X</button>
+                ${newLine}
+            `;
+        }
+
+        // Reattach delete-line event listeners to all delete buttons
+        const deleteButtons = orderContainer.querySelectorAll('.delete-line');
+        deleteButtons.forEach(button => {
+            button.removeEventListener('click', deleteLineHandler); // Remove any existing listeners to prevent duplicates
+            button.addEventListener('click', deleteLineHandler);
+        });
+    }
+
+    // Separate delete handler function FOR THE UPDATE ORDER DISPLAY X BUTTON
+    function deleteLineHandler(event) {
+        const button = event.currentTarget;
+        const line = button.parentElement;
+        const containerType = button.getAttribute('data-container');
+
+        // Perform necessary deletion logic
+        line.remove();
+    }
+
+
+    //gets all the previous lines except for the one we are trying to update which should be the most recent/last line
+    /**
+    * @function getAllButLastOrderLine
+    * @description helper function the update the order display by grabbing all the confirmed lines except for the last line we are updating
+    */
+    function getAllButLastOrderLine() {
+        const orderContainer = document.querySelector('.order-container-display');
+        
+        // Get the current HTML content of the order container
+        const orderHTML = orderContainer.innerHTML.trim();
+        
+        // Check if there's any content in the order container
+        if (orderHTML) {
+            // Normalize <br> tags to ensure consistency
+            const normalizedHTML = orderHTML.replace(/<br\s*\/?>/g, '<br>');
+            
+            // Split the content by <br> tag and filter out any empty lines
+            const lines = normalizedHTML.split('<br>').filter(line => line.trim() !== '');
+            
+            // If there’s more than one line, return everything but the last
+            if (lines.length > 1) {
+                return lines.slice(0, -1).join('<br>');
+            }
+            
+            // If there's only one line, return an empty string
+            return '';
+        }
+        
+        // Return an empty string if there is no text in the order container
+        return '';
+    }
+
+</script>
+
+
+
+
+
+
+
+<h5></h5>
+<!-- Left side -->
+<div class="error-text">ERRORS: None</div>
+<div class="card" style="width: 35%; height: 72.85%; float: left;">
+    <div class="card-body">
+        <h4 class="card-title">
+            <!-- Increment with each completed order -->
+            Order #<span id="order-number"><%= maxOrderId + 1 %></span>
+        </h4>
+        <!-- Divider -->
+        <hr style="margin-top: 10px; border-top: 2px solid #ccc;">
+        <!-- Display Order Text -->
+        <div class="order-container-display" style="border: 1px solid #ddd; padding: 10px; height: 350px; overflow-y: auto;">
+            <!-- This will be dynamically updated based on button clicks -->
+        </div>
+        <!-- Divider -->
+        <hr style="margin-top: 10px; border-top: 2px solid #ccc;">
+        <!-- Complete Button and Total section -->
+        <div style="position: relative;">
+            <!-- Complete Button -->
+        <!-- Complete Button -->
+        <button class="btn btn-danger" style="width: 40%; padding: 10px; font-weight: bold; float: left; text-align: center; margin-right: 10px;"
+                onclick="enterButton()">
+            Enter
+        </button>
+        <!-- Clear Button -->
+        <button class="btn btn-danger" style="width: 40%; padding: 10px; font-weight: bold; float: left; text-align: center;"
+                onclick="clearContainer()">
+            Clear Container
+        </button>
+        <!-- Enter Continer Button -->
+        <button class="btn btn-danger" style="width: 40%; padding: 10px; font-weight: bold; float: left; text-align: center; margin-top: 10px;"
+                onclick="checkOutButton()">
+            Check Out
+        </button>
+        <!-- Total -->
+        <p style="font-weight: bold; text-align: right; padding-top: 15px; float: right;">
+            Total: $<span id="total-price">0.00</span>
+        </p>
+        </div>
+    </div>
+</div>
+
+<!-- Right side -->
+<div style="padding-left: 20px; height: 100vh; overflow-y: auto;">
+    <!-- Containers Section -->
+    <div style="width: 100%; height: auto; overflow-y: auto; border: 1px solid #ddd; padding-top: 15px; padding-bottom: 5px; padding-right: 10px; margin-bottom: 18px;">
+        <div class="container mt-6">
+            <div class="row">
+                <% for (let i = 0; i < container.length; i++) { %>
+                    <div class="col-md-2 mb-2">
+                        <div class="card" style="cursor: pointer; height: 120px; width: 120px; background-color: rgb(171, 164, 177);" 
+                            onclick="addContainer('<%= container[i].container_name %>', '<%= container[i].price %>')">
+                            <div class="card-body">
+                                <h5 class="card-title" style="text-align: center; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);">
+                                    <%= container[i].container_name %>
+                                    ($<%= (container[i].price / 100).toFixed(2) %>)
+                                </h5>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <!-- Food Items Section -->
+    <div style="width: 100%; height: 55%; overflow-y: auto; border: 1px solid #ddd;">
+        <div class="container mt-3">
+            <div class="row">
+                <% for (let i = 0; i < food.length; i++) { %>
+                    <div class="col-md-3 mb-4">
+                        <div class="card" style="cursor: pointer; height: 150px; width: 175px; background-color: 
+                            <% if (food[i].itemtype === 'entree') { %> rgb(231, 169, 169);
+                            <% } else if (food[i].itemtype === 'side') { %> rgb(177, 190, 224);
+                            <% } else if (food[i].itemtype === 'drink') { %> rgb(197, 149, 220);
+                            <% } else { %> rgb(221, 170, 133); <% } %>" 
+                            onclick="addFood('<%= food[i].food_name %>', '<%= food[i].itemtype %>')">
+                            <div class="card-body">
+                                <h5 class="card-title" style="text-align: center; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);">
+                                    <%= food[i].food_name %>
+                                </h5>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>        
+</div>    

@@ -1,0 +1,21 @@
+<% layout('partials/cashierBoilerPlate') %>
+
+
+    <div class="container mb-3">
+        <h4 class="text-center mb-4"> Manage Containers
+        </h4>
+
+        <% for (let i=0; i < containers.length; i++) { %>
+            <li class="food-item">
+                <span class="food-name">
+                    <%= containers[i].container_name %>
+                </span>
+
+                <form class="edit-form" action="/edit" method="POST">
+
+
+                    <a href="/containerEdit/<%= containers[i].container_name %>/edit" class="btn btn-danger">View &
+                        Edit</a>
+                </form>
+            </li>
+            <% } %>

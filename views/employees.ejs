@@ -1,0 +1,35 @@
+<% layout('partials/cashierBoilerPlate') %>
+
+
+    <div class="text-center">
+        <h4>Manage Employees</h4>
+        <a href="/employeeForm" class="btn btn-danger">+ Add Employee</a>
+    </div>
+
+
+
+    <% for (let i=0; i < employees.length; i++) { %>
+        <li class="employee-item">
+            <span class="employee-name">
+                <%= employees[i].employee_firstname %>
+                    <%= employees[i].employee_lastname %>
+            </span>
+
+            <div class="manager-info">
+                <p>Manager: </p>
+                <% if (employees[i].is_manager==true) { %>
+                    <p>✓</p>
+                    <% } else { %>
+                        <p>✗</p>
+                        <% } %>
+
+                            <a href="/employees/<%=employees[i].employee_id%>" class="btn btn-danger">View & Edit</a>
+            </div>
+        </li>
+        <% } %>
+
+            <% if (message) { %>
+                <script type="text/javascript">
+                    alert('<%= message %>');
+                </script>
+                <% } %>

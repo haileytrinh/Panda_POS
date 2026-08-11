@@ -1,0 +1,90 @@
+<% layout('partials/cashierBoilerPlate') %>
+
+    <div class="text-center">
+        <h4>Manage Menu Items</h4>
+        <a href="newMenuItem" class="btn btn-danger">+ Add New Menu Item</a>
+    </div>
+
+    <h5 class="my-4">Entrees</h5>
+
+    <% for (let i=0; i < food.length; i++) { %>
+        <% if (food[i].itemtype=="entree" ) {%>
+            <li class="food-item">
+                <span class="food-name">
+                    <%= food[i].food_name %>
+                </span>
+
+
+                <form class="edit-form" action="/edit" method="POST">
+
+
+                    <a href="/menuEdit/<%= food[i].food_id%>/ingredients" class="btn btn-outline-danger">Add/Delete
+                        Ingredients</a>
+                    <a href="/menuEdit/<%= food[i].food_id %>/edit" class="btn btn-danger">View & Edit</a>
+                </form>
+            </li>
+            <% } %>
+                <% } %>
+
+                    <h5 class="my-4">Sides</h5>
+
+                    <% for (let i=0; i < food.length; i++) { %>
+                        <% if (food[i].itemtype=="side" ) {%>
+                            <li class="food-item">
+                                <span class="food-name">
+                                    <%= food[i].food_name %>
+                                </span>
+
+                                <form class="edit-form" action="/edit" method="POST">
+
+                                    <a href="/menuEdit/<%= food[i].food_id%>/ingredients"
+                                        class="btn btn-outline-danger">Add/Delete
+                                        Ingredients</a>
+                                    <a href="/menuEdit/<%= food[i].food_id %>/edit" class="btn btn-danger">View &
+                                        Edit</a>
+                                </form>
+                            </li>
+                            <% } %>
+                                <% } %>
+
+                                    <h5 class="my-4">Appetizers</h5>
+
+                                    <% for (let i=0; i < food.length; i++) { %>
+                                        <% if (food[i].itemtype=="appetizer" ) {%>
+                                            <li class="food-item">
+                                                <span class="food-name">
+                                                    <%= food[i].food_name %>
+                                                </span>
+
+                                                <form class="edit-form" action="/edit" method="POST">
+
+                                                    <a href="/menuEdit/<%= food[i].food_id%>/ingredients"
+                                                        class="btn btn-outline-danger">Add/Delete
+                                                        Ingredients</a>
+                                                    <a href="/menuEdit/<%= food[i].food_id %>/edit"
+                                                        class="btn btn-danger">View & Edit</a>
+                                                </form>
+                                            </li>
+                                            <% } %>
+                                                <% } %>
+
+                                                    <h5 class="my-4">Drinks</h5>
+
+                                                    <% for (let i=0; i < food.length; i++) { %>
+                                                        <% if (food[i].itemtype=="drink" ) {%>
+                                                            <li class="food-item">
+                                                                <span class="food-name">
+                                                                    <%= food[i].food_name %>
+                                                                </span>
+
+                                                                <form class="edit-form" action="/edit" method="POST">
+
+                                                                    <a href="/menuEdit/<%= food[i].food_id%>/ingredients"
+                                                                        class="btn btn-outline-danger">Add/Delete
+                                                                        Ingredients</a>
+                                                                    <a href="/menuEdit/<%= food[i].food_id %>/edit"
+                                                                        class="btn btn-danger">View & Edit</a>
+                                                                </form>
+                                                            </li>
+                                                            <% } %>
+                                                                <% } %>

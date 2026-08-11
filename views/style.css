@@ -1,0 +1,131 @@
+.navbar {
+    background-color: #D1282E;
+    color: white;
+}
+
+.nav-link,
+.navbar-brand {
+    color: white;
+}
+
+.dropbtn {
+    outline: #ddd;
+    color: white;
+    padding: 10px;
+    margin-right: 25px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f1f1f1;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+}
+
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {
+    background-color: #ddd;
+}
+
+.show {
+    display: block;
+}
+
+.clickable-card.active {
+    outline: 2px solid #D1282E;
+    outline-offset: -2px;
+}
+
+
+
+.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.panda-logo {
+    margin-left: 20px;
+}
+
+.login {
+    margin-right: 20px;
+}
+
+.food-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.food-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f4f4f4;
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 5px;
+    border-bottom: 2px solid #ccc;
+}
+
+.food-item:last-child {
+    border-bottom: none;
+}
+
+.employee-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 5px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.employee-item .employee-name {
+    flex-grow: 1;
+    font-size: 16px;
+}
+
+.employee-item .manager-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.employee-item .manager-info p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.employee-item .manager-info a {
+    text-decoration: none;
+    margin-left: 10px;
+}
+
+/* Define a custom class for larger row height */
+.order-item {
+    padding: 10px 15px;
+    /* Add vertical and horizontal padding */
+    height: 50px;
+    /* Ensure each row has enough height */
+    display: flex;
+    /* Flex for aligning content */
+    align-items: center;
+    /* Vertically align the content */
+}

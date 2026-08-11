@@ -1,0 +1,323 @@
+<% layout('partials/boilerplate') %>
+<style>
+
+    /* High Contrast Mode Styles */
+    .high-contrast {
+        background-color: #000 !important;
+        color: #fff !important;
+    }
+    .high-contrast a {
+        color: #ff0 !important;
+    }
+    .high-contrast .card {
+        background-color: #d02020 !important;
+    }
+    .high-contrast .card-body {
+        color: #fff !important;
+    }
+    .high-contrast .btn {
+        background-color: rgb(255, 201, 52) !important;
+        color: #000 !important;
+    }
+    .high-contrast .card-title, 
+    .high-contrast .card-text,
+    .high-contrast p {
+        color: #fff !important; /* Ensure text is white in high contrast mode */
+    }
+</style>
+
+<div id="accessibility-container" style="display: flex; justify-content: space-between; align-items: center;">
+    
+    <!-- Left Section: Translate and TTS Buttons -->
+    <div id="accessibility-left-container" style="display: flex; align-items: center; gap: 20px;">
+        <!-- Translate Section -->
+        <div id="translate-container" style="position: relative; display: inline-block;">
+            <button id="translateButton" aria-label="Translate" style="border: none; background: none;">
+                <img id="translate-icon" alt="Translate" src="https://cdn2.iconfinder.com/data/icons/social-media-line/50/global-512.png" style="width: 30px; height: 30px;" alt="Translate">
+            </button>
+            <div id="languageMenu" style="position: absolute; display: none; background-color: white; border: 1px solid #ccc; box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2); z-index: 1; min-width: 160px;">
+                <button id="englishOption" style="display: block; width: 100%; padding: 8px; text-align: left; border: none; background: none; cursor: pointer;">English</button>
+                <button id="spanishOption" style="display: block; width: 100%; padding: 8px; text-align: left; border: none; background: none; cursor: pointer;">Spanish</button>
+                <button id="chineseOption" style="display: block; width: 100%; padding: 8px; text-align: left; border: none; background: none; cursor: pointer;">Chinese</button>
+                <button id="frenchOption" style="display: block; width: 100%; padding: 8px; text-align: left; border: none; background: none; cursor: pointer;">French</button>
+            </div>
+        </div>
+
+        <!-- TTS Section -->
+        <button id="ttsToggle" aria-label="Text-to-Speech" style="border: none; background: none;">
+            <img id="tts-icon" alt="Text-to-Speech" src="https://icons.iconarchive.com/icons/pictogrammers/material-light/256/volume-high-icon.png" style="width: 40px; height: 40px;" alt="Text-to-Speech">
+        </button>
+
+        <!-- Font Settings Section -->
+        <div id="font-container">
+            <button id="fontButton" style="border: none; background: none;">
+                <img id="font-icon" src="https://www.svgrepo.com/show/465105/font-3.svg" alt="Font Icon" style="width: 30px; height: 30px;">
+            </button>
+            <div id="fontControls" style="display: none; margin-top: 10px; background-color: #dedddd; padding: 10px; border: 1px solid #ccc; border-radius: 5px; width: fit-content;">
+                <label id="font-label" for="fontSelect" style="margin: 5px; font-size: 14px;">Change Font:</label>
+                <select id="fontSelect" style="margin: 5px; font-size: 14px;">
+                    <option value="Arial">Arial</option>
+                    <option value="Verdana">Verdana</option>
+                    <option value="Times New Roman">Times New Roman</option>
+                    <option value="Georgia">Georgia</option>
+                    <option value="Courier New">Courier New</option>
+                </select>
+                <button id="increaseFont" style="margin: 5px; border: none; background: none;">
+                    <img id="increaseFont-icon" src="https://cdn0.iconfinder.com/data/icons/typicons-2/24/plus-128.png" alt="Font Icon" style="width: 20px; height: 20px;">
+                </button>
+                <button id="decreaseFont" style="margin: 5px; border: none; background: none;">
+                    <img id="decreaseFont-icon" src="https://cdn0.iconfinder.com/data/icons/typicons-2/24/minus-128.png" alt="Font Icon" style="width: 20px; height: 20px;">
+                </button>
+            </div>
+        </div>
+        
+        <!-- High Contrast Toggle Button -->
+        <button id="highContrastToggle" class="btn btn-warning" style="border: none; background: none;">
+            High Contrast
+        </button>
+    </div>
+    
+    <!-- Right Section: Weather Icon and Info -->
+    <div id="weather" style="display: flex; align-items: center; text-align: right;">
+        <img id="weatherIcon" src="" alt="Weather icon" style="width: 60px; height: 60px; margin-right: 10px;">
+        <div id="weather-container" style="display: flex; flex-direction: column; text-align: left;">
+            <p style="margin-bottom: 2px; font-size: 14px;"><span id="temperature"></span></p>
+            <p style="margin-top: 2px; margin-bottom: 0; text-transform: capitalize; font-size: 14px;"><span id="weatherDescription"></span></p>
+        </div>
+    </div>
+</div>
+
+<div id="content-container">
+    <h5 id="mealTypeTitle" class="text-center"> Choose Your Meal Type.</h5>
+
+    <div class="container mt-4">
+        <div class="row" style="margin-left: 60px; margin-right: 60px;">
+            <% for (let i = 0; i < food.length; i++) { %>
+                <div class="col-md-4 mb-4"> <!-- Use col-md-4 for 3 items per row -->
+                    <a href="/display/<%= food[i].container_name %>" aria-label="<%= food[i].container_name %>" style="text-decoration: none; color: inherit;">
+                        <div class="card" style="cursor: pointer;" onclick="updateDatabase(<%= i %>)">
+                            <!-- Make the entire card clickable -->
+                            <img class="card-img-top" src="<%= food[i].image %>" alt="Card image cap">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <a href="/display/<%= food[i].container_name %>" style="text-decoration: none; color: inherit;">
+                                        <%= food[i].container_name %>
+                                    </a>
+                                    <p style="font-size: medium;">$ <%= (food[i].price / 100).toFixed(2) %>
+                                    </p>
+                                    <p style="font-size: medium; color: rgb(54, 54, 54);">
+                                        <%= (food[i].description) %>
+                                    </p>
+                                </h5>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    /**
+    * @file        Basic template file for all the accessibility features
+    */
+    // TRANSLATE SCRIPT
+    // Function to translate text using Google Translate API
+    async function translateText(text, targetLanguage) {
+        const res = await fetch('/translate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                text: text,
+                targetLanguage: targetLanguage
+            })
+        });
+
+        const data = await res.json();
+        return data.translatedText;
+    }
+
+    // Store original content for reverting
+    const originalContent = document.getElementById('content-container').innerHTML;
+
+    // Retrieve saved language preference or default to English
+    const savedLanguage = localStorage.getItem('language') || 'en';
+    let currentLanguage = savedLanguage;
+
+    // Function to apply saved translation on page load
+    /**
+    * @function applySavedTranslation
+    * @description allows the translated language to stay consistent across different pages
+    */
+    async function applySavedTranslation() {
+        const contentContainer = document.getElementById('content-container');
+        if (currentLanguage !== 'en') {
+            const translatedContent = await translateText(originalContent, currentLanguage);
+            contentContainer.innerHTML = translatedContent;
+        }
+    }
+
+    // Run this function on page load to apply saved language
+    document.addEventListener('DOMContentLoaded', applySavedTranslation);
+
+    // Handle language change
+    async function changeLanguage(language) {
+        const contentContainer = document.getElementById('content-container');
+        if (language === 'en') {
+            contentContainer.innerHTML = originalContent;
+        } else {
+            const translatedContent = await translateText(originalContent, language);
+            contentContainer.innerHTML = translatedContent;
+        }
+        localStorage.setItem('language', language);
+        currentLanguage = language;
+    }
+
+    // Dropdown menu toggle
+    document.getElementById('translateButton').addEventListener('click', () => {
+        const languageMenu = document.getElementById('languageMenu');
+        languageMenu.style.display = languageMenu.style.display === 'block' ? 'none' : 'block';
+    });
+
+    // Add event listeners for language options
+    document.getElementById('englishOption').addEventListener('click', () => changeLanguage('en'));
+    document.getElementById('spanishOption').addEventListener('click', () => changeLanguage('es'));
+    document.getElementById('chineseOption').addEventListener('click', () => changeLanguage('zh'));
+    document.getElementById('frenchOption').addEventListener('click', () => changeLanguage('fr'));
+
+    // Close the dropdown when clicking anywhere outside it
+    window.addEventListener('click', (event) => {
+        const languageMenu = document.getElementById('languageMenu');
+        if (!event.target.matches('#translateButton') && !event.target.matches('#languageMenu') && !event.target.matches('#languageMenu *')) {
+            languageMenu.style.display = 'none';
+        }
+    });
+</script>
+
+<script type="text/javascript">
+    // Flag to track TTS toggle status
+    let isTtsEnabled = false;
+
+    // Function to toggle text-to-speech
+    document.getElementById('ttsToggle').addEventListener('click', () => {
+        isTtsEnabled = !isTtsEnabled;
+        if (isTtsEnabled) {
+            alert("Text-to-Speech is now ON. Select text to hear it.");
+        } else {
+            alert("Text-to-Speech is now OFF.");
+        }
+    });
+
+    // Function to speak the selected text
+    function speakText(text) {
+        if (isTtsEnabled && text) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            speechSynthesis.speak(utterance);
+        }
+    }
+
+    // Detect text selection and trigger speech synthesis when selection is released
+    document.addEventListener('mouseup', () => {
+        if (isTtsEnabled) {
+            const selectedText = window.getSelection().toString().trim();
+            if (selectedText) {
+                speakText(selectedText);
+            }
+        }
+    });
+</script>
+
+<script>
+    // Your OpenWeather API key
+    const apiKey = 'c8136619d59b7ab631247d4b746ef5c7'; // Replace with your OpenWeather API key
+
+    // Function to fetch weather data
+    async function getWeather(city) {
+        const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=imperial`; // units=metric for Celsius
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+
+            if (data.cod === 200) {
+                // Display weather data
+                document.getElementById('temperature').textContent = data.main.temp + '°F';
+                document.getElementById('weatherDescription').textContent = data.weather[0].description;
+
+                // Set the weather icon
+                const iconCode = data.weather[0].icon;
+                const iconUrl = `https://openweathermap.org/img/wn/${iconCode}.png`;
+                document.getElementById('weatherIcon').src = iconUrl;
+            } else {
+                alert('City not found');
+            }
+        } catch (error) {
+            console.error('Error fetching weather data:', error);
+        }
+    }
+
+    // Example usage: Get weather for London
+    getWeather('College Station');
+</script>
+
+
+
+
+<script>
+    // Initial font size (in pixels)
+    let currentFontSize = 18; // Default font size for the page
+    const MIN_FONT_SIZE = 10;  // Minimum font size in pixels
+    const MAX_FONT_SIZE = 30;  // Maximum font size in pixels
+
+    document.getElementById('fontButton').addEventListener('click', () => {
+        const fontControls = document.getElementById('fontControls');
+        fontControls.style.display = fontControls.style.display === 'none' ? 'block' : 'none';
+    });
+
+    document.getElementById('fontSelect').addEventListener('change', (event) => {
+        const selectedFont = event.target.value;
+        document.body.style.fontFamily = selectedFont; // Change the font family for the entire page
+    });
+
+    document.getElementById('increaseFont').addEventListener('click', () => {
+        if (currentFontSize < MAX_FONT_SIZE) { // Increase font size only if it's below the maximum limit
+            currentFontSize += 2; // Increase font size by 2px
+            document.documentElement.style.fontSize = `${currentFontSize}px`; // Apply font size to the root element (html)
+        }
+    });
+
+    document.getElementById('decreaseFont').addEventListener('click', () => {
+        if (currentFontSize > MIN_FONT_SIZE) { // Decrease font size only if it's above the minimum limit
+            currentFontSize -= 2; // Decrease font size by 2px
+            document.documentElement.style.fontSize = `${currentFontSize}px`; // Apply font size to the root element (html)
+        }
+    });
+</script>
+
+<script>
+    // Toggle High Contrast
+    document.getElementById('highContrastToggle').addEventListener('click', function() {
+        document.body.classList.toggle('high-contrast');
+        // Check if the body has the 'high-contrast' class and change the image source accordingly
+        const translateIcon = document.getElementById('translate-icon');
+        const ttsIcon = document.getElementById('tts-icon');
+        const fontIcon = document.getElementById('font-icon');
+
+        if (document.body.classList.contains('high-contrast')) {
+            // If in high contrast mode, set the high contrast image
+            translateIcon.src = 'https://flaticons.net/icon.php?slug_category=mobile-application&slug_icon=globe'; // Replace with your high contrast image URL
+            ttsIcon.src = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7QGLGWRKUIJPADYTG2KjtXQqpaMOuhBKkDQ&s'; // Replace with your high contrast image URL
+            fontIcon.src = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9rPZ6V8Gn5NYYEkclnAFalcZMgfGAPBptMA&s'; // Replace with your high contrast image URL
+
+            
+        } else {
+            // If not in high contrast mode, set the normal image
+            translateIcon.src = 'https://cdn2.iconfinder.com/data/icons/social-media-line/50/global-512.png'; // Replace with your normal image URL
+            ttsIcon.src = 'https://icons.iconarchive.com/icons/pictogrammers/material-light/256/volume-high-icon.png'; // Replace with your high contrast image URL
+            fontIcon.src = 'https://www.svgrepo.com/show/465105/font-3.svg'; // Replace with your high contrast image URL
+
+        }
+    });
+</script>

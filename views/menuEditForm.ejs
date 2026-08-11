@@ -1,0 +1,70 @@
+<% layout('partials/cashierBoilerPlate') %>
+
+<a href="/menuEdit" class="btn btn-secondary btn-sm mb-3">
+    ← Back</a>
+<div class="container mb-5">
+    <h4 class="text-center mb-4">Editing <%= foodItem.food_name %></h4>
+
+    <form id="editFoodItemForm" action="/menuEdit/<%= foodItem.food_id %>?_method=PUT" method="POST">
+        <div class="mb-3">
+            <label for="name" class="fw-bold form-label">Food Name:</label>
+            <input type="text" id="name" name="name" class="form-control" value="<%= foodItem.food_name %>" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="description" class="fw-bold form-label">Description:</label>
+            <textarea id="description" name="description" class="form-control" required><%= foodItem.description %></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label for="restrictions" class="fw-bold form-label">Dietary Restrictions:</label>
+            <textarea id="restrictions" name="restrictions" class="form-control"><%= foodItem.dietary_restrictions %></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label for="type" class="fw-bold form-label">Type:</label>
+            <select id="type" name="type" class="form-select" required>
+                <option value="entree" <%= foodItem.itemtype === 'entree' ? 'selected' : '' %>>Entree</option>
+                <option value="side" <%= foodItem.itemtype === 'side' ? 'selected' : '' %>>Side</option>
+                <option value="drink" <%= foodItem.itemtype === 'drink' ? 'selected' : '' %>>Drink</option>
+                <option value="appetizer" <%= foodItem.itemtype === 'appetizer' ? 'selected' : '' %>>Appetizer</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="seasonal" class="fw-bold form-label">Seasonal Item:</label>
+            <select id="seasonal" name="seasonal" class="form-select" required>
+                <option value="true" <%= foodItem.seasonal === true ? 'selected' : '' %>>Yes</option>
+                <option value="false" <%= foodItem.seasonal === false ? 'selected' : '' %>>No</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="calories" class="fw-bold form-label">Calories:</label>
+            <input type="number" id="calories" name="calories" class="form-control" value="<%= foodItem.calories %>" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="image" class="fw-bold form-label">Image URL:</label>
+            <input type="url" id="image" name="image" class="form-control" value="<%= foodItem.image %>">
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Save Changes</button>
+    </form>
+
+    <form action="/menuEdit/<%= foodItem.food_id %>/delete" method="POST"
+        onsubmit="return confirm('Are you sure you want to delete this item?')">
+        <button type="submit" class="btn btn-danger w-30 mt-3">Delete Menu Item</button>
+    </form>
+</div>
+
+<script>
+document.getElementById('editFoodItemForm').addEventListener('submit', function(event) {
+    const calories = document.getElementById('calories').value;
+    if (isNaN(calories) || parseInt(calories) < 0) {
+        // Show an alert if validation fails
+        alert('Please enter a valid number for calories.');
+        event.preventDefault();  // Prevent form submission
+    }
+});
+</script>

@@ -1,0 +1,61 @@
+<% layout('partials/cashierBoilerPlate') %>
+
+    <a href="/employees" class="btn btn-secondary btn-sm mb-3">
+        ← Back</a>
+    <div class="container mb-5">
+        <h4 class="text-center mb-4">Editing Employee <%= employee.employee_firstname %>
+                <%= employee.employee_lastname %>
+        </h4>
+
+        <form action="/employees/<%= employee.employee_id %>" method="POST">
+            <div class="mb-3">
+                <label for="firstname" class="fw-bold form-label">Employee First Name</label>
+                <input type="text" id="firstname" name="firstname" class="form-control"
+                    value="<%= employee.employee_firstname %>" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="lastname" class="fw-bold form-label">Employee Last Name</label>
+                <input type="text" id="lastname" name="lastname" class="form-control"
+                    value="<%= employee.employee_lastname %>" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="email" class="fw-bold form-label">Employee Email</label>
+                <input type="email" id="email" name="email" class="form-control" value="<%= employee.email %>" readonly>
+            </div>
+
+            <div class="mb-3">
+                <label for="number" class="fw-bold form-label">Employee Phone Number</label>
+                <input type="number" id="number" name="number" class="form-control" value="<%= employee.number %>"
+                    required>
+            </div>
+
+
+            <div class="mb-3">
+                <label for="is_manager" class="fw-bold form-label">Manager?</label>
+                <select id="is_manager" name="is_manager" class="form-select" required>
+                    <option value=true <%=employee.is_manager===true ? 'selected' : '' %>>True
+                    </option>
+                    <option value=false <%=employee.is_manager===false? 'selected' : '' %>>False</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="employee_id" class="fw-bold form-label">Employee ID:</label>
+                <input type="text" id="employee_id" name="employee_id" class="form-control"
+                    value="<%= employee.employee_id %>" readonly>
+            </div>
+
+
+            <button type="submit" class="btn btn-primary w-100">Save Changes</button>
+
+        </form>
+
+        <form action="/employees/<%= employee.employee_id %>/delete" method="POST"
+            onsubmit="return confirm('Are you sure you want to delete this item?')">
+            <button type="submit" class="btn btn-danger w-30 mt-3">Delete Employee</button>
+        </form>
+
+
+    </div>

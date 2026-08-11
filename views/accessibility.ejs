@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+    <div id="google_translate_container">
+        <button id="translateButton" style="border: none; background: none;">
+        <img src="../images/world.png"  style="width: 50px; height: auto;" />
+        </button>
+        <div id="google_translate_element" style="display: none;"></div> <!-- Hidden initially -->
+    </div>
+    <h5 class="text-center p-3">Reports</h5>
+    <label>
+        <input type="checkbox" id="ttsSwitch"> Enable Text-to-Speech
+    </label>
+    <button id="increaseButton">Increase Text</button>
+    <button id="decreaseButton">Decrease Text</button>
+    <style>
+        :root {
+            --font-size: 16px; /* Default font size for the page */
+        }
+
+        body {
+            font-size: var(--font-size);
+        }
+    </style>
+
+</html>
+
+<script src="script.js"></script>
+<script type="text/javascript">
+    /**
+    * @file        Accessibility and Translation Features Page
+    * @desciption This EJS file includes functionalities for Google Translate, Text-to-Speech (TTS), 
+    *             and font size adjustment, enhancing accessibility and usability.
+    */
+
+    /**
+     * @function    googleTranslateElementInit
+     * @description Initializes the Google Translate element to enable page translation.
+     */
+    function googleTranslateElementInit() {
+    new google.translate.TranslateElement(
+        { pageLanguage: 'en' },
+        'google_translate_element'
+    );
+    }
+    /**
+     * @function    Document Ready Event Listener
+     * @description Adds event listeners for the translate button and handles TTS functionality.
+     */
+    document.addEventListener('DOMContentLoaded', function () {
+    const translateButton = document.getElementById('translateButton');
+    const translateElement = document.getElementById('google_translate_element');
+    /**
+     * @event        translateButton clicked
+     * @description Displays the Google Translate element when clicked.
+     */
+    translateButton.addEventListener('click', function () {
+        // Show the Google Translate element when the button is clicked
+        translateElement.style.display = 'block';
+    });
+    });
+    // TTS toggle switch
+    const ttsSwitch = document.getElementById('ttsSwitch');
+    // Add event listeners to all buttons with the "speakable" class
+    const speakableButtons = document.querySelectorAll('button');
+    /**
+     * @event       speakableButtons clicked
+     * @description Enables TTS functionality for buttons. Speaks the text when clicked/highlighted.
+     */    
+    speakableButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Check if TTS is enabled
+            if (ttsSwitch.checked && 'speechSynthesis' in window) {
+                const textToSpeak = button.innerText;
+                const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                utterance.lang = 'en-US'; // Set language (e.g., 'en-US', 'es-ES')
+                window.speechSynthesis.speak(utterance);
+            }
+        });
+    });
+    const increaseButton = document.getElementById('increaseButton');
+    const decreaseButton = document.getElementById('decreaseButton');
+
+    let fontSize = 16; // Default font size in pixels
+    /**
+     * @event       increaseButton clicked
+     * @description Increases the font size on the page by 2px.
+     */
+    increaseButton.addEventListener('click', () => {
+        fontSize += 2; // Increase the font size by 2px
+        document.documentElement.style.setProperty('--font-size', `${fontSize}px`);
+    });
+    /**
+     * @event       decreaseButton clicked
+     * @description Decreases the font size on the page by 2px.
+     */
+    decreaseButton.addEventListener('click', () => {
+        fontSize -= 2; // Increase the font size by 2px
+        document.documentElement.style.setProperty('--font-size', `${fontSize}px`);
+    });
+</script>
+
+<script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
