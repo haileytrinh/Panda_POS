@@ -57,7 +57,7 @@ app.post('/get-google-id', authentication.getGoogleID);
 
 
 /* uncomment auth stuff */
-app.get('/cashier', authentication.verifySession, async (req, res) => {
+app.get('/cashier', async (req, res) => {
     try {
         let currentOrder = [];
         console.log("Connecting to the database...");
@@ -153,7 +153,7 @@ app.post('/submitComplaint', async (req, res) => {
     }
 });
 
-app.get('/menuEdit', authentication.verifySession, authentication.managerPermissions, async (req, res) => {
+app.get('/menuEdit', async (req, res) => {
 
     try {
         console.log("Connecting to the database...");
@@ -169,7 +169,7 @@ app.get('/menuEdit', authentication.verifySession, authentication.managerPermiss
     }
 });
 
-app.get('/orders', authentication.verifySession, authentication.managerPermissions, async (req, res) => {
+app.get('/orders', async (req, res) => {
     const { order_date } = req.query; // Get the selected date from the query params
 
     let query;
@@ -242,7 +242,7 @@ app.get('/orders', authentication.verifySession, authentication.managerPermissio
     }
 });
 
-app.get('/orders/:id', authentication.verifySession, authentication.managerPermissions, async (req, res) => {
+app.get('/orders/:id', async (req, res) => {
     const id = req.params.id; // Get the order ID from the URL parameter
 
     try {
@@ -339,7 +339,7 @@ app.post('/orders/:id/delete', async (req, res) => {
 
 
 
-app.get('/kitchen-view', authentication.verifySession, async (req, res) => {
+app.get('/kitchen-view', async (req, res) => {
     try {
         // SQL Query to get all the relevant data
         const result = await pool.query(`
@@ -638,7 +638,7 @@ app.post('/recallOrder/:orderId', (req, res) => {
     });
 
     
-app.get('/containerEdit', authentication.verifySession, authentication.managerPermissions, async (req, res) => {
+app.get('/containerEdit', async (req, res) => {
 
     try {
         console.log("Connecting to the database...");
@@ -653,7 +653,7 @@ app.get('/containerEdit', authentication.verifySession, authentication.managerPe
     }
 });
 
-app.get('/newMenuItem', authentication.verifySession, authentication.managerPermissions, async (req, res) => {
+app.get('/newMenuItem', async (req, res) => {
 
     try {
         res.render('newMenuItem');
@@ -687,7 +687,7 @@ app.post('/newMenuItem', async (req, res) => {
     }
 });
 
-app.get('/containerEdit/:container_name/edit', authentication.verifySession, authentication.managerPermissions, async (req, res) => {
+app.get('/containerEdit/:container_name/edit', async (req, res) => {
     const { container_name } = req.params;
 
     try {
@@ -703,7 +703,7 @@ app.get('/containerEdit/:container_name/edit', authentication.verifySession, aut
     }
 });
 
-app.get('/containerEdit/:container_name/edit', authentication.verifySession, authentication.managerPermissions, async (req, res) => {
+app.get('/containerEdit/:container_name/edit', async (req, res) => {
     const { container_name } = req.params;
 
     try {
@@ -719,7 +719,7 @@ app.get('/containerEdit/:container_name/edit', authentication.verifySession, aut
     }
 });
 
-app.get('/employees', authentication.verifySession, authentication.managerPermissions, async (req, res) => {
+app.get('/employees', async (req, res) => {
 
     try {
         const result = await pool.query('SELECT * FROM employee');
@@ -733,7 +733,7 @@ app.get('/employees', authentication.verifySession, authentication.managerPermis
     }
 });
 
-app.get('/employeeForm', authentication.verifySession, authentication.managerPermissions, async (req, res) => {
+app.get('/employeeForm', async (req, res) => {
     try {
         res.render('employeeForm');
     } catch (err) {
@@ -759,7 +759,7 @@ app.post('/new-employee', async (req, res) => {
 
 
 
-app.get('/employees/:id', authentication.verifySession, authentication.managerPermissions, async (req, res) => {
+app.get('/employees/:id', async (req, res) => {
     const employeeId = req.params.id;
 
     try {
@@ -788,7 +788,7 @@ app.post('/employees/:id', async (req, res) => {
     }
 });
 
-app.post('/employees/:id/delete', authentication.verifySession, authentication.managerPermissions, async (req, res) => {
+app.post('/employees/:id/delete', async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -824,7 +824,7 @@ app.post('/containerEdit/:container_name/edit', async (req, res) => {
     }
 });
 
-app.get('/menuEdit/:food_id/ingredients', authentication.verifySession, authentication.managerPermissions, async (req, res) => {
+app.get('/menuEdit/:food_id/ingredients', async (req, res) => {
     const { food_id } = req.params;
 
     try {
@@ -918,7 +918,7 @@ app.post('/menuEdit/:food_id/delete', async (req, res) => {
 
 
 
-app.get('/menuEdit/:id/edit', authentication.verifySession, authentication.managerPermissions, async (req, res) => {
+app.get('/menuEdit/:id/edit', async (req, res) => {
     const itemId = req.params.id;
 
     try {
@@ -1433,7 +1433,7 @@ app.post('/decrementStock', async (req, res) => {
 
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
-app.get('/inventory', authentication.verifySession, authentication.managerPermissions, async (req, res) => {
+app.get('/inventory', async (req, res) => {
     try {
         console.log("Connecting to the database...");
 
@@ -1671,7 +1671,7 @@ app.get('/display/:name', async (req, res) => {
 });
 
 
-app.get("/reports", authentication.verifySession, authentication.managerPermissions, async (req, res) => {
+app.get("/reports", async (req, res) => {
     try {
         // Fetch food names from the database (no ID, just food_name)
         const foodResult = await pool.query('SELECT food_name FROM food');
