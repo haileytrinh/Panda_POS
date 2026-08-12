@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const pool = require('./database');
 const session = require('express-session');
@@ -10,10 +11,10 @@ const { foodIDEndpoint } = require('./food');
 const { translateText } = require('./translate'); // Import the translate function
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 app.use(session({
-    secret: 'your-secret-key', // Change this to a random string
+    secret: process.env.SESSION_SECRET, // Use the secret from environment variables
     resave: false,
     saveUninitialized: true,
     cookie: { secure: false } // In production, set 'secure: true' with HTTPS
